@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>CarSharing_Client</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Data" />
+    </ItemGroup>
+
+</Project>
