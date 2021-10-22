@@ -1,0 +1,45 @@
+﻿@page "/Search"
+@inject NavigationManager NavigationManager
+
+
+<h3>Look for car listings</h3>
+<EditForm Model="@ListingItem" OnValidSubmit="@SearchForListing">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <p> Location: <input type="text" @bind="Location" style="width:180px"/> </p>
+    <p> Date From: <input type="date" @bind="DateFrom" style="width:150px"/> </p>
+    <p> Date To: <input type="date" @bind="DateTo" style="width:150px"/> </p>
+    <p>
+        Car Type:
+        <select class="form-control selectpicker" @bind="VehicleType" style="width:150px">
+            <option>Sedan</option>
+            <option>Van</option>
+            <option>Coupe</option>
+            <option>SUV</option>
+            <option>Hatchback</option>
+            <option>Pickup truck</option>
+        </select>
+    </p>
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Search</button>
+    </p>
+</EditForm>
+
+@code {
+
+    private string Location;
+    private DateTime DateFrom;
+    private DateTime DateTo;
+    private string VehicleType;
+
+
+    private object ListingItem = new object()    //TODO Create Listing Class and assign attributes to this object later. Also update bindings after.
+    {
+    };
+
+    private void SearchForListing()
+    {
+        NavigationManager.NavigateTo("/Index");  //TODO navigate to listings with search parameters being processed through the system.
+    }
+
+}
