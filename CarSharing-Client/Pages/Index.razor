@@ -1,7 +1,12 @@
 @page "/"
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?"/>
+ <div class="form-group" style="display: flex; justify-content: center">
+ <h3> Welcome to the car sharing! </h3>
+  </div>
+     @* <AuthorizeView> @*TODO outcomment authorization policies
+     <NotAuthorized> *@
+      <div class="form-group" style="display: flex; justify-content: center">
+        Please proceed with⠀<a href="/login">login</a>!  
+        </div>
+       @*   </NotAuthorized>
+ </AuthorizeView> *@
