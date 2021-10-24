@@ -12,12 +12,13 @@
     <p>
         Car Type:
         <select class="form-control selectpicker" @bind="VehicleType" style="width:150px">
-            <option>Sedan</option>
-            <option>Van</option>
-            <option>Coupe</option>
-            <option>SUV</option>
-            <option>Hatchback</option>
-            <option>Pickup truck</option>
+            <option value="null">Select</option>
+            <option value="Sedan">Sedan</option>
+            <option value="Van">Van</option>
+            <option value="Coupe">Coupe</option>
+            <option value="SUV">SUV</option>
+            <option value="Hatchback">Hatchback</option>
+            <option value="Pickup truck">Pickup truck</option>
         </select>
     </p>
     <p class="actions">
@@ -33,13 +34,14 @@
     private string VehicleType;
 
 
-    private object ListingItem = new object()    //TODO Create Listing Class and assign attributes to this object later. Also update bindings after.
+    private object ListingItem = new object() //TODO Create Listing Class and assign attributes to this object later. Also update bindings after.
     {
     };
 
-    private void SearchForListing()
+    private void SearchForListing() //TODO navigate to listings with search parameters being processed through the system.
+
     {
-        NavigationManager.NavigateTo("/Index");  //TODO navigate to listings with search parameters being processed through the system.
+        NavigationManager.NavigateTo("/CarListings");
     }
 
 }
