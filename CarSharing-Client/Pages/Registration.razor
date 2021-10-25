@@ -12,7 +12,12 @@
     <ObjectGraphDataAnnotationsValidator/>
     <ValidationSummary/>
     <div class="form-group">
-        CPR(Username):
+            Email(Username):
+            <br/>
+            <InputText rows="1" @bind-Value="Email"/>
+        </div>
+    <div class="form-group">
+        CPR:
         <br/>
         <InputText rows="1" @bind-Value="CPR"/>
     </div>
@@ -49,7 +54,9 @@
 </div>
 
 @code {
-    private string CPR;  //TODO figure out something for xxxxxx-xxxx format
+    private string CPR;  //TODO figure out something for xxxxxx-xxxx format if it is needed
+    //CPR also being used for date of birth calculation ;-)
+    private string Email;
     private string Password;
     private string Password2;
     private string FirstName;
