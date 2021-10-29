@@ -1,0 +1,80 @@
+@page "/Registration"
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<div class="form-group" style="display: flex; justify-content: center">
+    <h3>Registration page</h3>
+</div>
+
+<div class="form-group" style="display: flex; justify-content: center">
+<EditForm Model="@newAccountItem" OnValidSubmit="@AddNewAccount">
+    <ObjectGraphDataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="form-group">
+            Email(Username):
+            <br/>
+            <InputText rows="1" @bind-Value="Email"/>
+        </div>
+    <div class="form-group">
+        CPR:
+        <br/>
+        <InputText rows="1" @bind-Value="CPR"/>
+    </div>
+    <div class="form-group">
+        Password:
+        <br/>
+        <InputText rows="1" @bind-Value="Password"/>
+    </div>
+    <div class="form-group">
+        Repeat password:
+        <br/>
+        <InputText rows="1" @bind-Value="Password2"/>
+    </div>
+    <div class="form-group">
+        First Name:
+        <br/>
+        <InputText rows="1" @bind-Value="FirstName"/>
+    </div>
+    <div class="form-group">
+        Last Name:
+        <br/>
+        <InputText rows="1" @bind-Value="LastName"/>
+    </div>
+    <div class="form-group">
+        Phone number:
+        <br/>
+        <InputNumber rows="1" @bind-Value="PhoneNumber"/>
+    </div>
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Create new account</button>
+    </p>
+</EditForm>
+</div>
+
+@code {
+    private string CPR;  //TODO figure out something for xxxxxx-xxxx format if it is needed
+    //CPR also being used for date of birth calculation ;-)
+    private string Email;
+    private string Password;
+    private string Password2;
+    private string FirstName;
+    private string LastName;
+    private int PhoneNumber;
+
+    private object newAccountItem = new object();
+
+
+    private bool PasswordCheck() //TODO dull method just to remember to include something alike
+    {
+        return Password == Password2;
+    }
+
+    private void AddNewAccount()
+    {
+    // FileData.AddAccount(newAccountItem);
+        NavigationManager.NavigateTo("/");
+    }
+
+}
