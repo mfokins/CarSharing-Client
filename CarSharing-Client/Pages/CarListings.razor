@@ -21,34 +21,41 @@
     </tr>
     </thead>
     <tbody>
-    <tr>
-        <td>Car</td>
-        <td>Type</td>
-        <td>Owner</td>
-        <td>Price/day</td>
-        <td>Location</td>
-        <td>
-            @* do onclick! *@
-            <button>
-                <i class="oi oi-book"></i>
-            </button>
-        </td>
-    </tr>
+
+    @foreach (var item in listingsToShow)
+
+    {
+        <tr>
+            <td>@item.Vehicle</td>
+            <td>@item.Vehicle.Type</td>
+            <td>@item.Price</td>
+            <td>@item.Location</td>
+            <td>@item.Vehicle.OwnerCpr</td> @* TODO switch to owner name? *@
+            <td>
+                <button @onclick="@(() => ViewListing(item.Vehicle.LicenseNo))">
+                    <i class="oi oi-book" style="color:limegreen"></i>
+                </button>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>
 
-@code {
+
+@code
+{
+
     private IList<Listing> listingsToShow;
     private IList<Listing> allListings;
-    
+
     protected override async Task OnInitializedAsync()
     {
         allListings = await ListingService.GetAllListingsAsync();
         listingsToShow = allListings;
     }
-    
+
     private void ViewListing(string licenseNo)
     {
-        NavMgr.NavigateTo($"ViewListing/{licenseNo}");  //TODO change to listing id instead of vehicle licenseNo
+        NavMgr.NavigateTo($"ViewListing/{licenseNo}"); //TODO change to listing id instead of vehicle licenseNo
     }
 }
