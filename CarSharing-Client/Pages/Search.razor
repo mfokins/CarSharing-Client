@@ -1,17 +1,21 @@
 ﻿@page "/Search"
+@using Models
+@using Data
 @inject NavigationManager NavigationManager
+@inject IListingService ListingService
+
 
 
 <h3>Look for car listings</h3>
 <EditForm Model="@ListingItem" OnValidSubmit="@SearchForListing">
     <DataAnnotationsValidator/>
     <ValidationSummary/>
-    <p> Location: <input type="text" @bind="Location" style="width:180px"/> </p>
-    <p> Date From: <input type="date" @bind="DateFrom" style="width:150px"/> </p>
-    <p> Date To: <input type="date" @bind="DateTo" style="width:150px"/> </p>
+    <p> Location: <input type="text" @bind="ListingItem.Location" style="width:180px"/> </p>
+    <p> Date From: <input type="date" @bind="ListingItem.DateFrom" style="width:150px"/> </p>
+    <p> Date To: <input type="date" @bind="ListingItem.DateTo" style="width:150px"/> </p>
     <p>
         Car Type:
-        <select class="form-control selectpicker" @bind="VehicleType" style="width:150px">
+        <select class="form-control selectpicker" @bind="ListingItem.Vehicle.Type" style="width:150px">
             <option value="null">Select</option>
             <option value="Sedan">Sedan</option>
             <option value="Van">Van</option>
@@ -28,19 +32,12 @@
 
 @code {
 
-    private string Location;
-    private DateTime DateFrom;
-    private DateTime DateTo;
-    private string VehicleType;
-
-
-    private object ListingItem = new object() //TODO Create Listing Class and assign attributes to this object later. Also update bindings after.
-    {
-    };
+    private Listing ListingItem = new Listing();
 
     private void SearchForListing() //TODO navigate to listings with search parameters being processed through the system.
 
     {
+      //  ListingService.GetAllListingsAsync();    //TODO need to implement search and pass parameters
         NavigationManager.NavigateTo("/CarListings");
     }
 

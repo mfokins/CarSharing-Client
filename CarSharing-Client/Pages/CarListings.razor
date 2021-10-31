@@ -1,4 +1,11 @@
 ﻿@page "/CarListings"
+@using Models
+@using Data
+@inject IListingService ListingService
+@inject IVehicleService VehicleService
+@inject NavigationManager NavMgr
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 <h3>Car Listings</h3>
 <br>
 
@@ -31,4 +38,17 @@
 </table>
 
 @code {
+    private IList<Listing> listingsToShow;
+    private IList<Listing> allListings;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        allListings = await ListingService.GetAllListingsAsync();
+        listingsToShow = allListings;
+    }
+    
+    private void ViewListing(string licenseNo)
+    {
+        NavMgr.NavigateTo($"ViewListing/{licenseNo}");  //TODO change to listing id instead of vehicle licenseNo
+    }
 }

@@ -1,0 +1,71 @@
+@page "/ViewListing/{licenseNo}"
+@using CarSharing_Client.Models
+@using CarSharing_Client.Data
+@inject IListingService ListingService
+@inject IVehicleService VehicleService
+@inject NavigationManager NavigationManager
+
+<h3>View listing with LicenseNo: @LicenseNo </h3>
+
+@if (listingToView == null)
+{
+    <em>Listing not found!</em>
+}
+else
+{
+    <div>
+        <p>Location: @listingToView.Location</p>
+        <p>Type: @listingToView.Vehicle.Type</p>
+        <p>Brand: @listingToView.Vehicle.Brand</p>
+        <p>Model: @listingToView.Vehicle.Model</p>
+        <p>License№: @listingToView.Vehicle.LicenseNo</p>
+
+        <p>Manufacture Year: @listingToView.Vehicle.ManufactureYear</p>
+        <p>Seats: @listingToView.Vehicle.Seats</p>
+        <p>Transmission: @listingToView.Vehicle.Transmission</p>
+        <p>Fuel type: @listingToView.Vehicle.FuelType</p>
+        <p>Mileage: @listingToView.Vehicle.Mileage</p>
+
+        <p>Listed Date: @listingToView.ListedDate</p>
+        <p>Price/day: @listingToView.Price</p>
+        <p>Available from: @listingToView.DateFrom</p>
+        <p>Available to: @listingToView.DateTo</p>
+
+        @* Owner CPR isn't included. I don't think it's needed in a listing. Maybe after purchase... *@
+
+    </div>
+
+    <p>
+        <button @onclick="@(() => GoBack())"></button>
+    </p>
+    <p>
+
+        <button @onclick="@(() => Purchase())"></button>
+    </p>
+}
+
+
+@code {
+
+    [Parameter]
+    public string LicenseNo { get; set; }
+
+    private Listing listingToView;
+    private Vehicle vehicleToView;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vehicleToView = await VehicleService.GetVehicleAsync(LicenseNo);
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"CarListings");
+    }
+
+    private void Purchase()
+    {
+        NavigationManager.NavigateTo($"SomewherePlaceholder"); //TODO Vehicle renting procedure need to be defined
+    }
+
+}
