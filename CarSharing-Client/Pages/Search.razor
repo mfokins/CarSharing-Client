@@ -1,44 +1,127 @@
-﻿@page "/Search"
+﻿@page "/search"
+
 @using Models
 @using Data
+
 @inject NavigationManager NavigationManager
 @inject IListingService ListingService
 
+<h2 class="p-2">Look for a car</h2>
 
-
-<h3>Look for car listings</h3>
-<EditForm Model="@ListingItem" OnValidSubmit="@SearchForListing">
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
-    <p> Location: <input type="text" @bind="ListingItem.Location" style="width:180px"/> </p>
-    <p> Date From: <input type="date" @bind="ListingItem.DateFrom" style="width:150px"/> </p>
-    <p> Date To: <input type="date" @bind="ListingItem.DateTo" style="width:150px"/> </p>
-    <p>
-        Car Type:
-        <select class="form-control selectpicker" @bind="ListingItem.Vehicle.Type" style="width:150px">
-            <option value="null">Select</option>
-            <option value="Sedan">Sedan</option>
-            <option value="Van">Van</option>
-            <option value="Coupe">Coupe</option>
-            <option value="SUV">SUV</option>
-            <option value="Hatchback">Hatchback</option>
-            <option value="Pickup truck">Pickup truck</option>
-        </select>
-    </p>
-    <p class="actions">
-        <button class="btn btn-outline-dark" type="submit">Search</button>
-    </p>
+<EditForm Model="@_params" OnValidSubmit="@SearchForListing">
+    <div class="card card-registration rounded col-8 m-3">
+        <div class="row p-1">
+            <div class="col-3 p-1 ml-3">
+                <p>
+                    Location:
+                    <InputText class="form-control" @bind-Value="_params.Location"/>
+                </p>
+            </div>
+            <div class="col-2 p-1 ml-3">
+                <p>
+                    Date From:
+                    <InputDate class="form-control" @bind-Value="_params.DateFrom"/>
+                </p>
+            </div>
+            <div class="col-2 p-1 ml-1">
+                <p>
+                    Date To:
+                    <InputDate class="form-control" @bind-Value="_params.DateTo"/>
+                </p>
+            </div>
+            @* <p> *@
+            @*     Car Type: *@
+            @*     <select class="form-control selectpicker" @bind="ListingItem.Vehicle.Type" style="width:150px"> *@
+            @*         <option value="null">Select</option> *@
+            @*         <option value="Sedan">Sedan</option> *@
+            @*         <option value="Van">Van</option> *@
+            @*         <option value="Coupe">Coupe</option> *@
+            @*         <option value="SUV">SUV</option> *@
+            @*         <option value="Hatchback">Hatchback</option> *@
+            @*         <option value="Pickup truck">Pickup truck</option> *@
+            @*     </select> *@
+            @* </p> *@
+            <div class="col-2 ml-2 mt-4">
+                <p class="actions">
+                    <button class="btn btn-outline-dark " type="submit">Search</button>
+                </p>
+            </div>
+        </div>
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+    </div>
 </EditForm>
 
+@if (_errorMessage != "")
+{
+    <div class="alert alert-danger col-5 ml-2" role="alert">
+        @_errorMessage
+    </div>
+}
+
+@if (_listings != null)
+{
+    <hr/>
+    <div class="row">
+        @foreach (var listing in _listings)
+        {
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                <div class="card text-center">
+                    <div class="member-card">
+                        <div class="card-header p-3">
+                            <span class="iconify " data-icon="fluent:vehicle-car-profile-ltr-16-filled" data-width="30" data-height="30"></span>
+                            <h4>@listing.Vehicle.Brand @listing.Vehicle.Model </h4>
+                            <p class="text-muted">
+                                @listing.Location
+                            </p>
+                            <p>
+                                <strong>@listing.Vehicle.LicenseNo</strong>
+                            </p>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <span class="font-weight-light">Price:</span> @listing.Price
+                            </p>
+                            <p class="card-text">
+                                <span class="font-weight-light">Type:</span> @listing.Vehicle.Type
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
 @code {
+    private string _errorMessage = "";
 
-    private Listing ListingItem = new Listing();
-
-    private void SearchForListing() //TODO navigate to listings with search parameters being processed through the system.
-
+    private readonly SearchParams _params = new()
     {
-      //  ListingService.GetAllListingsAsync();    //TODO need to implement search and pass parameters
-        NavigationManager.NavigateTo("/CarListings");
+        DateFrom = DateTime.Now,
+    };
+
+    private IList<Listing> _listings;
+
+    private async Task SearchForListing()
+    {
+    //Todo By Ion - pass the class _param
+    // or send arguments to another page and get there the list of listings
+        if (_params.DateFrom != null && _params.DateTo != null)
+        {
+    //Todo 01.11 by Ion - change the checking of dates
+            if (_params.DateFrom <= _params.DateTo)
+            {
+                _errorMessage = "";
+                _listings = await ListingService.GetListingsAsync(_params.Location, _params.DateFrom.Value, _params.DateTo.Value);
+            }
+            else
+            {
+                _errorMessage = "The end date cannot be before the start date";
+            }
+        }
     }
 
 }

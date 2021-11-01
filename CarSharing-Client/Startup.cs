@@ -1,7 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using CarSharing_Client.Data;
+using CarSharing_Client.Data.Impl;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
@@ -27,6 +25,8 @@ namespace CarSharing_Client
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddScoped<IVehicleService, VehicleWebService>();
+            services.AddScoped<IListingService, ListingWebService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

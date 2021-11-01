@@ -9,37 +9,44 @@
 <h3>Car Listings</h3>
 <br>
 
-<table class="table">
-    <thead>
-    <tr>
-        <th>Car</th>
-        <th>Type</th>
-        <th>Owner</th>
-        <th>Price/day</th>
-        <th>Location</th>
-        <th>Book</th>
-    </tr>
-    </thead>
-    <tbody>
-
-    @foreach (var item in listingsToShow)
-
-    {
+@if (listingsToShow == null)
+{
+    
+}
+else
+{
+    <table class="table">
+        <thead>
         <tr>
-            <td>@item.Vehicle</td>
-            <td>@item.Vehicle.Type</td>
-            <td>@item.Price</td>
-            <td>@item.Location</td>
-            <td>@item.Vehicle.OwnerCpr</td> @* TODO switch to owner name? *@
-            <td>
-                <button @onclick="@(() => ViewListing(item.Vehicle.LicenseNo))">
-                    <i class="oi oi-book" style="color:limegreen"></i>
-                </button>
-            </td>
+            <th>Car</th>
+            <th>Type</th>
+            <th>Owner</th>
+            <th>Price/day</th>
+            <th>Location</th>
+            <th>Book</th>
         </tr>
-    }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+
+        @foreach (var item in listingsToShow)
+
+        {
+            <tr>
+                <td>@item.Vehicle</td>
+                <td>@item.Vehicle.Type</td>
+                <td>@item.Price</td>
+                <td>@item.Location</td>
+                <td>@item.Vehicle.OwnerCpr</td> @* TODO switch to owner name? *@
+                <td>
+                    <button @onclick="@(() => ViewListing(item.Vehicle.LicenseNo))">
+                        <i class="oi oi-book" style="color:limegreen"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
 
 
 @code
@@ -50,7 +57,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        allListings = await ListingService.GetAllListingsAsync();
+        //allListings = await ListingService.GetAllListingsAsync();
         listingsToShow = allListings;
     }
 
