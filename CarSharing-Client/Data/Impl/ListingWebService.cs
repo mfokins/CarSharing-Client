@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -9,50 +10,43 @@ namespace CarSharing_Client.Data.Impl
 {
     public class ListingWebService : IListingService
     {
-        private string uri = "https://localhost:5002";
-        private readonly HttpClient client;
+        private const string Uri = "http://localhost:8080";
+        private readonly HttpClient _client;
 
         public ListingWebService()
         {
-            client = new HttpClient();
+            _client = new HttpClient();
         }
-
-        public async Task<IList<Listing>> GetAllListingsAsync()
-        {
-            Task<string> stringAsync = client.GetStringAsync(uri + "/Listings");
-            string message = await stringAsync;
-            List<Listing> result = JsonSerializer.Deserialize<List<Listing>>(message);
-            return result;
-        }
-
         public async Task AddListingAsync(Listing listing)
         {
-            string listingAsJson = JsonSerializer.Serialize(listing);
-            HttpContent content = new StringContent(listingAsJson,
-                Encoding.UTF8,
-                "application/json");
-            await client.PostAsync(uri + "/Listings", content);
+            throw new NotImplementedException();
         }
 
         public async Task RemoveListingAsync(int id)
         {
-            await client.DeleteAsync($"{uri}/Listings/{id}");
+            throw new NotImplementedException();
         }
 
         public async Task UpdateListingAsync(Listing listing)
         {
-            string listingAsJson = JsonSerializer.Serialize(listing);
-            HttpContent content = new StringContent(listingAsJson,
-                Encoding.UTF8,
-                "application/json");
-            await client.PatchAsync($"{uri}/Listings/{listing.Price}", content); //TODO CHANGE TO ID IN FUTURE!
+            throw new NotImplementedException();
         }
 
-        public async Task<Listing> GetListingAsync(int id)
+        public async Task<IList<Listing>> GetListingsAsync(string location, DateTime dateFrom, DateTime dateTo)
         {
-            Task<string> stringAsync = client.GetStringAsync($"{uri}/Listings/{id}");
-            string message = await stringAsync;
-            Listing result = JsonSerializer.Deserialize<Listing>(message);
-            return result;        }
+            HttpResponseMessage responseMessage = 
+                await _client.GetAsync(Uri + $"/listings?location={location}&dateFrom={dateFrom:yyyy-MM-ddTHH:mm:ssZ}&dateTo={dateTo:yyyy-MM-ddTHH:mm:ssZ}");
+
+            if (!responseMessage.IsSuccessStatusCode)
+                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
+
+            string result = await responseMessage.Content.ReadAsStringAsync();
+
+            IList<Listing> listings = JsonSerializer.Deserialize<IList<Listing>>(result, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            return listings;
+        }
     }
 }

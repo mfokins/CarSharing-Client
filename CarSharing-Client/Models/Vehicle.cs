@@ -5,9 +5,12 @@ namespace CarSharing_Client.Models
 {
     public class Vehicle
     {
-        [Key] public string LicenseNo { get; set; }
-        [Required] public string Brand { get; set; }
-        [Required] public string Model { get; set; }
+        [Key] 
+        public string LicenseNo { get; set; }
+        [Required] 
+        public string Brand { get; set; }
+        [Required] 
+        public string Model { get; set; }
         public string Type { get; set; }
         public string Transmission { get; set; }
         public string FuelType { get; set; }
