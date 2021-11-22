@@ -2,6 +2,7 @@ using CarSharing_Client.Data;
 using CarSharing_Client.Data.Impl;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +28,14 @@ namespace CarSharing_Client
             services.AddServerSideBlazor();
             services.AddScoped<IVehicleService, VehicleWebService>();
             services.AddScoped<IListingService, ListingWebService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+
+            services.AddAuthorization(option =>
+            {
+                option.AddPolicy("MustBeLoggedIn", a =>
+                    a.RequireAuthenticatedUser());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

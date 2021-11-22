@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -10,7 +11,7 @@ namespace CarSharing_Client.Data.Impl
 {
     public class VehicleWebService : IVehicleService
     {
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "http://10.154.212.114:8080";
         private readonly HttpClient _client;
 
         public VehicleWebService()
@@ -18,39 +19,42 @@ namespace CarSharing_Client.Data.Impl
             _client = new HttpClient();
         }
         
-        public async Task<IList<Vehicle>> GetAllVehiclesAsync()
-        {
-            Task<string> stringAsync = _client.GetStringAsync(Uri + "/vehicles");
-            string message = await stringAsync;
-            List<Vehicle> result = JsonSerializer.Deserialize<List<Vehicle>>(message);
-            return result;
-        }
+       
 
         public async Task AddVehicleAsync(Vehicle vehicle)
         {
-            string vehicleAsJson = JsonSerializer.Serialize(vehicle);
+            string vehicleAsJson = JsonSerializer.Serialize(vehicle, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             HttpContent content = new StringContent(vehicleAsJson,
                 Encoding.UTF8,
                 "application/json");
-            await _client.PostAsync(Uri + "/Vehicles", content);
+
+            HttpResponseMessage responseMessage =  await _client.PostAsync(Uri + "/vehicles", content);
+            if (!responseMessage.IsSuccessStatusCode)
+                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
         }
 
         public async Task RemoveVehicleAsync(string licenseNo)
         {
-            await _client.DeleteAsync($"{Uri}/Vehicle/{licenseNo}");
+            await _client.DeleteAsync($"{Uri}/vehicles?licenseNo={licenseNo}");
         }
 
         public async Task UpdateVehicleAsync(Vehicle vehicle)
         {
-            string vehicleAsJson = JsonSerializer.Serialize(vehicle);
+            string vehicleAsJson = JsonSerializer.Serialize(vehicle, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             HttpContent content = new StringContent(vehicleAsJson,
                 Encoding.UTF8,
                 "application/json");
-            await _client.PatchAsync($"{Uri}/Vehicles/{vehicle.LicenseNo}", content);        }
+            await _client.PatchAsync($"{Uri}/vehicles?licenseNo={vehicle.LicenseNo}", content);        }
 
         public async Task<Vehicle> GetVehicleAsync(string licenseNo)
         {
-            HttpResponseMessage responseMessage = await _client.GetAsync(Uri + $"/vehicle?licenseNo={licenseNo}");
+            HttpResponseMessage responseMessage = await _client.GetAsync(Uri + $"/vehicles?licenseNo={licenseNo}");
             
             if (!responseMessage.IsSuccessStatusCode)
                 throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
@@ -62,6 +66,22 @@ namespace CarSharing_Client.Data.Impl
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
             return vehicle;
+        }
+
+        public async Task<IList<Vehicle>> GetVehiclesByOwnerCprAsync(string cpr)
+        {
+            HttpResponseMessage responseMessage = await _client.GetAsync(Uri + $"/vehicles/owner?cpr={cpr}");
+            
+            if (!responseMessage.IsSuccessStatusCode)
+                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
+            
+            string result = await responseMessage.Content.ReadAsStringAsync();
+
+            IList<Vehicle> vehicles = JsonSerializer.Deserialize<IList<Vehicle>>(result, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            return vehicles;
         }
     }
 }

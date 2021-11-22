@@ -1,0 +1,144 @@
+@page "/VehicleRegister"
+@using CarSharing_Client.Models
+@using CarSharing_Client.Data
+@inject IVehicleService IvehicleService;
+@inject NavigationManager _navigationManager; 
+
+<h3>Register a new vehicle to your fleet</h3>
+
+
+@*<AuthorizeView>
+    <NotAuthorized>*@
+
+
+<EditForm Model="@car" OnValidSubmit="AddVehicle" >
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label>Licence number </label>
+            <InputText type="text" class="form-control" placeholder="BA123XA" @bind-Value="car.LicenseNo"> </InputText>
+        </div>
+        <div class="form-group col-md-5">
+            <label >Brand</label>
+            <InputText type="text" class="form-control" placeholder="BMW" @bind-Value="car.Brand"> </InputText>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label >Model</label>
+              <InputText type="text" class="form-control" placeholder="7.Series" @bind-Value="car.Model"> </InputText>
+        </div>
+        
+        <div class="form-group col-md-5">
+            <label >Type</label>
+              <InputText type="text" class="form-control" placeholder="dontknow" @bind-Value="car.Type"> </InputText>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label for="">Transmition</label>
+            <select class="form-control" @bind="car.Transmission" >
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+            </select>
+        </div>
+         @*TODO by tomas this has a bug, in case the user will not select something the default value is going to be null*@
+        <div class="form-group col-md-5">
+            <label for="">Fuel Type</label>
+            <select @bind="car.FuelType" class="form-control" >
+                <option value="Gas">Gas</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Electric">Electric</option>
+                <option value="Hydrogen">Hydrogen</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label >Number of seats</label>
+            <select @bind="car.Seats" class="form-control" >
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+            </select>
+                
+        </div>
+    
+    
+       
+        <div class="form-group col-md-5">
+            <label >Manufacture year</label>
+              <InputNumber type="text" class="form-control" placeholder="2021" @bind-Value="car.ManufactureYear"> </InputNumber>
+        </div>
+    </div>
+    <div class="form-row"> 
+        <div class="form-group col-md-5">
+            <label >Mileage</label>
+              <InputNumber type="text" class="form-control" placeholder="20000" @bind-Value="car.Mileage"> </InputNumber>
+        </div>
+        
+    </div>
+    
+    <div class="col-4 ml-2 mt-4">
+        <p class="actions">
+            <button class="btn btn-outline-dark " type="submit">Register vehicle</button>
+        </p>
+    </div>
+    
+ <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    
+</EditForm>
+    
+        
+    
+
+
+
+       
+
+
+@*  </NotAuthorized>
+    <Authorized>*@
+       
+ @*   </Authorized>
+</AuthorizeView>*@
+
+@code {
+
+    private readonly Vehicle car = new Vehicle();
+
+   
+
+
+    private async Task AddVehicle()
+    {
+        
+        
+        Console.WriteLine("licence number: "+ car.LicenseNo);
+        Console.WriteLine("brand: "+car.Brand);
+        Console.WriteLine("model: "+car.Model);
+        Console.WriteLine("type: "+car.Type);
+        Console.WriteLine("Transmition: "+car.Transmission); 
+        Console.WriteLine("fuel: "+car.FuelType);
+        Console.WriteLine("seats: "+car.Seats);
+        Console.WriteLine("manufacture year: "+car.ManufactureYear);
+        Console.WriteLine("mileage: "+car.Mileage);
+        
+        
+        
+
+       await IvehicleService.AddVehicleAsync(car);
+
+        Console.WriteLine("request sent");
+        _navigationManager.NavigateTo("/ViewCars");
+    }
+}

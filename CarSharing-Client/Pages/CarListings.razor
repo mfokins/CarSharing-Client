@@ -36,7 +36,7 @@ else
                 <td>@item.Vehicle.Type</td>
                 <td>@item.Price</td>
                 <td>@item.Location</td>
-                <td>@item.Vehicle.OwnerCpr</td> @* TODO switch to owner name? *@
+                <td>@item.Vehicle.Owner.Cpr</td> @* TODO switch to owner name? *@
                 <td>
                     <button @onclick="@(() => ViewListing(item.Vehicle.LicenseNo))">
                         <i class="oi oi-book" style="color:limegreen"></i>

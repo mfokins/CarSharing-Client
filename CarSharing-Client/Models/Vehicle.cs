@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Entity.ModelData;
 
 namespace CarSharing_Client.Models
 {
@@ -18,7 +19,7 @@ namespace CarSharing_Client.Models
         public int ManufactureYear { get; set; }
         public double Mileage { get; set; }
 
-        public string OwnerCpr { get; set; }
+        public Customer Owner { get; set; }
     }
 
     public static class VehicleTransmission

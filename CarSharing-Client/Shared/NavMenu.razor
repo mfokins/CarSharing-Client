@@ -17,6 +17,28 @@
                 <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Search
             </NavLink>
         </li>
+        
+         <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="login">
+                        <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Login
+                    </NavLink>
+                </li>
+        
+        
+        <AuthorizeView Policy="MustBeLoggedIn">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="ViewCars">
+                    <span  class="bi bi-truck" aria-hidden="true"></span> View your fleet
+                </NavLink>
+            </li>
+        </AuthorizeView>
+
+        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="ConnectionTestingPage">
+                                <span  class="bi bi-truck" aria-hidden="true"></span> The testing shit
+                            </NavLink>
+                        </li>
+        
     </ul>
 </div>
 

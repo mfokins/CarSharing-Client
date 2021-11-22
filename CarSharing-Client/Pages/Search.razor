@@ -2,11 +2,13 @@
 
 @using Models
 @using Data
+@using System.Threading
 
 @inject NavigationManager NavigationManager
 @inject IListingService ListingService
 
 <h2 class="p-2">Look for a car</h2>
+
 
 <EditForm Model="@_params" OnValidSubmit="@SearchForListing">
     <div class="card card-registration rounded col-8 m-3">
@@ -75,12 +77,12 @@
                                 @listing.Location
                             </p>
                             <p>
-                                <strong>@listing.Vehicle.LicenseNo</strong>
+                                <strong>Licence number: @listing.Vehicle.LicenseNo</strong>
                             </p>
                         </div>
                         <div class="card-body">
                             <p class="card-text">
-                                <span class="font-weight-light">Price:</span> @listing.Price
+                                <span class="font-weight-light">Price:</span> @listing.Price DKK/Day
                             </p>
                             <p class="card-text">
                                 <span class="font-weight-light">Type:</span> @listing.Vehicle.Type

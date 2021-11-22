@@ -1,0 +1,54 @@
+@page "/ConnectionTestingPage"
+@using CarSharing_Client.Data
+@using CarSharing_Client.Models
+@inject IVehicleService _vehicleService
+@inject IListingService _listingService
+<h3>ConnectionTestingPage</h3>
+
+<button @onclick="@deleteCar">   Delete car   </button>
+
+<button @onclick="@modifyCar">   Modify car   </button>
+
+
+
+
+
+
+@code {
+    
+    /*Vehicle _vehicle = new Vehicle()
+    {
+        
+        
+    }*/
+
+    private async Task deleteCar()
+    {
+        await _vehicleService.RemoveVehicleAsync("AB11222");
+        Console.WriteLine("done");
+    }
+
+    private async Task modifyCar()
+    {
+        Vehicle vehicle = new Vehicle()
+        {
+            LicenseNo = "MK99222",
+            Brand = "BMW",
+            Model = "7 series",
+            Type = "Limo",
+            Transmission = "Automatic",
+            FuelType = "Gas",
+            Seats = 5,
+            ManufactureYear = 2021,
+            Mileage = 25000
+        };
+        await _vehicleService.UpdateVehicleAsync(vehicle);
+    }
+
+    private async Task getVehicle()
+    {
+        
+    }
+    
+    
+}
