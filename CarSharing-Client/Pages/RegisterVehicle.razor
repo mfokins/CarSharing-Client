@@ -3,6 +3,7 @@
 @using CarSharing_Client.Data
 @inject IVehicleService IvehicleService;
 @inject NavigationManager _navigationManager; 
+@inject AuthenticationStateProvider _authenticationStateProvider
 
 <h3>Register a new vehicle to your fleet</h3>
 
@@ -132,11 +133,15 @@
         Console.WriteLine("seats: "+car.Seats);
         Console.WriteLine("manufacture year: "+car.ManufactureYear);
         Console.WriteLine("mileage: "+car.Mileage);
-        
-        
-        
 
-       await IvehicleService.AddVehicleAsync(car);
+
+        
+        car.Owner = ((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer;
+        car.Owner.Cpr= ((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer.Cpr;
+
+        Console.WriteLine(car.Owner.Cpr);
+       
+        await IvehicleService.AddVehicleAsync(car);
 
         Console.WriteLine("request sent");
         _navigationManager.NavigateTo("/ViewCars");
