@@ -20,7 +20,17 @@ namespace CarSharing_Client.Data.Impl
         }
         public async Task AddListingAsync(Listing listing)
         {
-            throw new NotImplementedException();
+            string listingAsJson = JsonSerializer.Serialize(listing, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            HttpContent content = new StringContent(listingAsJson,
+                Encoding.UTF8,
+                "application/json");
+
+            HttpResponseMessage responseMessage =  await _client.PostAsync(Uri + "/listings", content);
+            if (!responseMessage.IsSuccessStatusCode)
+                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
         }
 
         public async Task RemoveListingAsync(int id)

@@ -29,31 +29,38 @@
                        <div class="card-header p-3">
                            <span class="iconify " data-icon="fluent:vehicle-car-profile-ltr-16-filled" data-width="30" data-height="30"></span>
                            <h4>@vehicle.Brand @vehicle.Model </h4>
-                           <p class="text">
-                               @vehicle.FuelType
-                           </p>
-                           <p>
-                               <strong>Licence number: @vehicle.LicenseNo</strong>
-                           </p>
+                           <p> <strong>Licence number: @vehicle.LicenseNo</strong>   </p>
+
                        </div>
                        <div class="card-body">
+
                            <p class="card-text">
-                               <span class="font-weight-light">Price:</span> @vehicle.Mileage
+                               <span class="font-weight-light">Mileage:</span> @vehicle.Mileage
                            </p>
                            <p class="card-text">
-                               <span class="font-weight-light">Type:</span> @vehicle.Transmission
+                               <span class="font-weight-light">Transmition:</span> @vehicle.Transmission
+                           </p>
+                           
+                           <p class="card-text">
+                               <span class="font-weight-light">Seats:</span> @vehicle.Seats
                            </p>
 
                            <p class="card-text">
-                               <Button @onclick="@RedirectToCreateListing" class="font-weight-light">Rent vehicle</Button>
+                               <span class="font-weight-light">Type:</span> @vehicle.Type
+                           </p>
+                           
+                           <p class="card-text">
+                               <span class="font-weight-light">Manufacture year:</span> @vehicle.ManufactureYear
+                           </p>
+                           
+
+                           <p class="card-text">
+                               <Button @onclick="()=> RedirectToCreateListing(vehicle.LicenseNo)" class="font-weight-light">Rent vehicle</Button>
                            </p>
 
                            <p class="card-text">
                                <Button @onclick="()=> DeleteVehicle(vehicle.LicenseNo)" class="font-weight-light">Delete vehicle</Button>
                            </p>
-
-
-
                        </div>
                        <div class="card-footer">
                        </div>
@@ -69,15 +76,16 @@
 @code
 {
     private IList<Vehicle> _vehicles = new List<Vehicle>();
+    private IList<Vehicle> _vehicles2 = new List<Vehicle>();
 
     private void RedirectToNewCar()
     {
         _navigationManager.NavigateTo("/VehicleRegister");
     }
 
-    private void RedirectToCreateListing()
+    private void RedirectToCreateListing(string PassedLicenceNo)
     {
-        _navigationManager.NavigateTo("/ListingRegister");
+        _navigationManager.NavigateTo($"/ListingRegister/{PassedLicenceNo}");
     }
 
 
@@ -99,7 +107,7 @@
         //_vehicles.Add(await _ivehicleService.GetVehicleAsync("XO43788"));
         
         _vehicles= await _ivehicleService.GetVehiclesByOwnerCprAsync(((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer.Cpr);
-        
+       // _vehicles2 = await _ivehicleService.GetVehicleAsync("AD23456")
     }
 
 

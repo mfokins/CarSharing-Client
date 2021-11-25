@@ -38,7 +38,11 @@ namespace CarSharing_Client.Data.Impl
 
         public async Task RemoveVehicleAsync(string licenseNo)
         {
-            await _client.DeleteAsync($"{Uri}/vehicles?licenseNo={licenseNo}");
+           var response= await _client.DeleteAsync($"{Uri}/vehicles?licenseNo={licenseNo}");
+           if (!response.IsSuccessStatusCode)
+           {
+               throw new Exception($"Error: {response.StatusCode}, {response.ReasonPhrase}");
+           }
         }
 
         public async Task UpdateVehicleAsync(Vehicle vehicle)
@@ -80,6 +84,7 @@ namespace CarSharing_Client.Data.Impl
             IList<Vehicle> vehicles = JsonSerializer.Deserialize<IList<Vehicle>>(result, new JsonSerializerOptions()
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                
             });
             return vehicles;
         }

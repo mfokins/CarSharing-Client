@@ -1,9 +1,9 @@
-@page "/ListingRegister"
-@using System.ComponentModel
-@using System.Runtime.Intrinsics.Arm
+@page "/ListingRegister/{PassedLicenceNo}"
+@using CarSharing_Client.Data
 @using CarSharing_Client.Models
 @using Microsoft.AspNetCore.Components
-@using Microsoft.AspNetCore.Mvc.RazorPages
+@inject IListingService _listingService
+@inject IVehicleService _vehicleService
 
 
 
@@ -14,11 +14,11 @@
     <div class="form-row">
         <div class="form-group col-md-5">
             <label>Date from </label>
-            <InputDate  class="form-control" placeholder="@DateTime.Now" @bind-Value="_listing.DateFrom"> </InputDate>
+            <InputDate  class="form-control" placeholder="@DateTime.UtcNow" @bind-Value="_listing.DateFrom"> </InputDate>
         </div>
         <div class="form-group col-md-5">
             <label >Date to</label>
-            <InputDate  class="form-control" placeholder="@DateTime.Now" @bind-Value="_listing.DateTo"> </InputDate>
+            <InputDate  class="form-control" placeholder="@DateTime.UtcNow" @bind-Value="_listing.DateTo"> </InputDate>
         </div>
     </div>
     
@@ -33,24 +33,7 @@
             <InputText type="text" class="form-control" placeholder="Horsens" @bind-Value="_listing.Location"> </InputText>
         </div>
         
-        
     </div>
-    
-    @*TODO by tomas implement real vehicle retrieval from the system once the user is implemented *@
-    <div class="form-row">
-    <div class="form-group col-md-5">
-        <label >Select which car you wold like to rent</label>
-        <select @bind="car" class="form-control" >
-            <option value="bmw 7">bmw 7</option>
-            <option value="bmw 5">bmw 5</option>
-            <option value="bmw m4">bmw m4</option>
-            <option value="bmw m5">bmw m5</option>
-        </select>
-                    
-    </div>
-    </div>
-    
-   
     
     <div class="col-4 ml-2 mt-4">
         <p class="actions">
@@ -67,11 +50,15 @@
 
     private readonly Listing _listing = new()
     {
-        ListedDate = DateTime.Now,
-        //Vehicle = 
+        ListedDate = DateTime.UtcNow,
+        DateFrom = DateTime.UtcNow,
+        DateTo = DateTime.UtcNow.AddDays(7)
     };
-
-    private string car = "";
+    
+    [Parameter]
+    public string PassedLicenceNo { get; set; }
+    
+    
 
     public async Task AddListing()
     {
@@ -79,9 +66,19 @@
         Console.WriteLine(_listing.DateTo);
         Console.WriteLine(_listing.Price);
         Console.WriteLine(_listing.Location);
-        Console.WriteLine(car);
+        Console.WriteLine(PassedLicenceNo);
+        
+        
+        //TODO by Tomas switch this duplicit database load for a cache retrieval
+        _listing.Vehicle = await _vehicleService.GetVehicleAsync(PassedLicenceNo);
         
        
+        await _listingService.AddListingAsync(_listing);
+
+
+
+
+
     }
 
 }
