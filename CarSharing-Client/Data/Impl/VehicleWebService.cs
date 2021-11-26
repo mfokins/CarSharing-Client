@@ -11,15 +11,14 @@ namespace CarSharing_Client.Data.Impl
 {
     public class VehicleWebService : IVehicleService
     {
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "http://10.154.212.86:8080";
         private readonly HttpClient _client;
 
         public VehicleWebService()
         {
             _client = new HttpClient();
         }
-        
-       
+
 
         public async Task AddVehicleAsync(Vehicle vehicle)
         {
@@ -29,20 +28,21 @@ namespace CarSharing_Client.Data.Impl
             });
             HttpContent content = new StringContent(vehicleAsJson,
                 Encoding.UTF8,
-                "application/json");
+                "application/json"
+            );
 
-            HttpResponseMessage responseMessage =  await _client.PostAsync(Uri + "/vehicles", content);
+            HttpResponseMessage responseMessage = await _client.PostAsync(Uri + "/vehicles", content);
             if (!responseMessage.IsSuccessStatusCode)
                 throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
         }
 
         public async Task RemoveVehicleAsync(string licenseNo)
         {
-           var response= await _client.DeleteAsync($"{Uri}/vehicles?licenseNo={licenseNo}");
-           if (!response.IsSuccessStatusCode)
-           {
-               throw new Exception($"Error: {response.StatusCode}, {response.ReasonPhrase}");
-           }
+            var response = await _client.DeleteAsync($"{Uri}/vehicles/{licenseNo}");
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error: {response.StatusCode}, {response.ReasonPhrase}");
+            }
         }
 
         public async Task UpdateVehicleAsync(Vehicle vehicle)
@@ -54,15 +54,16 @@ namespace CarSharing_Client.Data.Impl
             HttpContent content = new StringContent(vehicleAsJson,
                 Encoding.UTF8,
                 "application/json");
-            await _client.PatchAsync($"{Uri}/vehicles?licenseNo={vehicle.LicenseNo}", content);        }
+            await _client.PatchAsync($"{Uri}/vehicles/{vehicle.LicenseNo}", content);
+        }
 
         public async Task<Vehicle> GetVehicleAsync(string licenseNo)
         {
             HttpResponseMessage responseMessage = await _client.GetAsync(Uri + $"/vehicles?licenseNo={licenseNo}");
-            
+
             if (!responseMessage.IsSuccessStatusCode)
                 throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
-            
+
             string result = await responseMessage.Content.ReadAsStringAsync();
 
             Vehicle vehicle = JsonSerializer.Deserialize<Vehicle>(result, new JsonSerializerOptions()
@@ -75,17 +76,15 @@ namespace CarSharing_Client.Data.Impl
         public async Task<IList<Vehicle>> GetVehiclesByOwnerCprAsync(string cpr)
         {
             HttpResponseMessage responseMessage = await _client.GetAsync(Uri + $"/vehicles/owner?cpr={cpr}");
-            
+
             if (!responseMessage.IsSuccessStatusCode)
                 throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
-            
-            string result = await responseMessage.Content.ReadAsStringAsync();
 
-            Console.WriteLine(result);
+            string result = await responseMessage.Content.ReadAsStringAsync();
+            
             IList<Vehicle> vehicles = JsonSerializer.Deserialize<IList<Vehicle>>(result, new JsonSerializerOptions()
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                
             });
             return vehicles;
         }

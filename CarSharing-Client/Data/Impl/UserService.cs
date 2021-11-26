@@ -1,17 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using CarSharing_Client.Models;
 using Entity.ModelData;
 
 namespace CarSharing_Client.Data.Impl
 {
     public class UserService : IUserService
     {
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "http://10.154.212.86:8080";
         private readonly HttpClient _client;
 
         public UserService()
@@ -28,26 +26,22 @@ namespace CarSharing_Client.Data.Impl
                 Password = password
             };
 
-            string AccountAsJson = JsonSerializer.Serialize(account, new JsonSerializerOptions()
+            string accountAsJson = JsonSerializer.Serialize(account, new JsonSerializerOptions()
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
 
-            StringContent AccountAsstringContent = new StringContent(
-                AccountAsJson,
+            StringContent accountAsStringContent = new StringContent(
+                accountAsJson,
                 Encoding.UTF8,
-                "application/json");
+                "application/json"
+            );
 
-            Console.WriteLine("id 0");
-
-            var response = await _client.PostAsync($"{Uri}/session", AccountAsstringContent);
-
-            Console.WriteLine("id 0.5");
+            var response = await _client.PostAsync($"{Uri}/session", accountAsStringContent);
 
             if (!response.IsSuccessStatusCode)
                 throw new Exception(response.Content.ReadAsStringAsync().Result);
-            
-            Console.WriteLine("id 2");
+
             var resultString = await response.Content.ReadAsStringAsync();
 
             var result = JsonSerializer.Deserialize<Customer>(resultString, new JsonSerializerOptions()
@@ -55,13 +49,7 @@ namespace CarSharing_Client.Data.Impl
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
 
-            Console.WriteLine("id 3");
-
             return result;
-
         }
     }
 }
-
-        
-    

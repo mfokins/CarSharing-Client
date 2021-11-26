@@ -1,69 +1,92 @@
 @page "/login"
 @using CarSharing_Client.Data
-@namespace LoginComponent
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject NavigationManager NavigationManager
+@namespace CarSharing_Client.Pages
+@inject AuthenticationStateProvider _authenticationStateProvider
+@inject NavigationManager _navigationManager
+
 
 <AuthorizeView>
     <NotAuthorized>
        
-        <div class="form-group">
-            <label>User name:</label>
-            <input type="text" placeholder="user name" @bind-value="username"/>
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" placeholder="password" @bind-value="password"/>
-        </div>
-        <div style="color:red">@errorMessage</div>
-
-        <Button @onclick="PerformLogin">Login</Button>
+            
+       <div class="container">
+               <div class="row justify-content-center align-items-center" style="height:50vh">
+                   <div class="col-4">
+                       <div class="card">
+                           <div class="card-body">
+                               <div class="form-group">
+                                       <input type="text" class="form-control" name="username" placeholder="username" @bind-value="_username">
+                                   </div>
+                                   <div class="form-group">
+                                       <input type="password" class="form-control" name="password" placeholder="password" @bind-value="_password">
+                                   </div>
+                                   <button  class="btn btn-primary" @onclick="PerformLogin">Login</button>
+                                   <div style="color:red">@_errorMessage</div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+        
+        
+        @*<div class="card  m-3" style="border-radius: 15px;">
+            <div class="card-body p-10">
+                <div class="form-group">
+                    <label>Username:</label>
+                    <input class="form-control form-control-md" type="text" placeholder="username" @bind-value="_username" style="width: 200px;"/>
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input class="form-control form-control-md" type="password" placeholder="password" @bind-value="_password" style="width: 200px;"/>
+                </div>
+                <button class="btn btn-outline-dark" @onclick="PerformLogin">Login</button>
+                <div style="color:red">@_errorMessage</div>
+            </div>
+        </div>*@
     </NotAuthorized>
     <Authorized>
         <h3>Loged in as @context.User.Identity?.Name</h3>
         <p>Hello @context.User.Identity?.Name your System access level is @context.User.FindFirst(claim => claim.Type.Equals("Level"))?.Value</p>
 
-        <Button @onclick="PerformLogout">Logout</Button>
+        <button class="btn btn-outline-dark" @onclick="PerformLogout">Log out</button>
     </Authorized>
 </AuthorizeView>
 
+
 @code {
-    private string username;
-    private string password;
-    private string errorMessage;
+    private string _username;
+    private string _password;
+    private string _errorMessage;
 
-
-
-    public async Task PerformLogin()
+    private async Task PerformLogin()
     {
-        errorMessage = "";
+        _errorMessage = "";
         try
         {
-            await ((CustomAuthenticationStateProvider) AuthenticationStateProvider).ValidateLogin(username, password);
-            username = "";
-            password = "";
-
+            await ((CustomAuthenticationStateProvider) _authenticationStateProvider).ValidateLogin(_username, _password);
+            _username = "";
+            _password = "";
         }
         catch (Exception e)
         {
-            errorMessage = e.Message;
+            _errorMessage = e.Message;
         }
     }
 
 
-
-    public async Task PerformLogout()
+    private async Task PerformLogout()
     {
-        errorMessage = "";
-        username = "";
-        password = "";
+        _errorMessage = "";
+        _username = "";
+        _password = "";
 
         try
         {
-            await ((CustomAuthenticationStateProvider) AuthenticationStateProvider).Logout();
+            await ((CustomAuthenticationStateProvider) _authenticationStateProvider).Logout();
         }
         catch (Exception e)
         {
+            _errorMessage = e.Message;
         }
     }
 

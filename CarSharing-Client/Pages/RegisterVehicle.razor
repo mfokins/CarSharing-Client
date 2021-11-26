@@ -1,53 +1,58 @@
-@page "/VehicleRegister"
+@page "/vehicle-register"
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
-@inject IVehicleService IvehicleService;
+@inject IVehicleService _vehicleService;
 @inject NavigationManager _navigationManager; 
 @inject AuthenticationStateProvider _authenticationStateProvider
 
 <h3>Register a new vehicle to your fleet</h3>
 
-
-@*<AuthorizeView>
-    <NotAuthorized>*@
-
-
-<EditForm Model="@car" OnValidSubmit="AddVehicle" >
+<EditForm Model="@_car" OnValidSubmit="AddVehicle" >
     <div class="form-row">
         <div class="form-group col-md-5">
             <label>Licence number </label>
-            <InputText type="text" class="form-control" placeholder="BA123XA" @bind-Value="car.LicenseNo"> </InputText>
+            <InputText type="text" class="form-control" placeholder="BA12345" @bind-Value="_car.LicenseNo"> </InputText>
         </div>
         <div class="form-group col-md-5">
             <label >Brand</label>
-            <InputText type="text" class="form-control" placeholder="BMW" @bind-Value="car.Brand"> </InputText>
+            <InputText type="text" class="form-control" placeholder="Tesla" @bind-Value="_car.Brand"> </InputText>
         </div>
     </div>
     
     <div class="form-row">
         <div class="form-group col-md-5">
             <label >Model</label>
-              <InputText type="text" class="form-control" placeholder="7.Series" @bind-Value="car.Model"> </InputText>
+              <InputText type="text" class="form-control" placeholder="Model S" @bind-Value="_car.Model"> </InputText>
         </div>
         
+       
         <div class="form-group col-md-5">
-            <label >Type</label>
-              <InputText type="text" class="form-control" placeholder="dontknow" @bind-Value="car.Type"> </InputText>
+            <label >Car type</label>
+            <select @bind="_car.Type" class="form-control" >
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Coupe">Coupe</option>
+                <option value="HatchBack">HatchBack</option>
+                <option value="Pickup Truck">Pickup Truck</option>
+                <option value="Van">Van</option>
+            </select>
+                       
         </div>
+        
     </div>
     
     <div class="form-row">
         <div class="form-group col-md-5">
             <label for="">Transmition</label>
-            <select class="form-control" @bind="car.Transmission" >
+            <select class="form-control" @bind="_car.Transmission" >
                 <option value="Automatic">Automatic</option>
                 <option value="Manual">Manual</option>
             </select>
         </div>
-         @*TODO by tomas this has a bug, in case the user will not select something the default value is going to be null*@
+        
         <div class="form-group col-md-5">
             <label for="">Fuel Type</label>
-            <select @bind="car.FuelType" class="form-control" >
+            <select @bind="_car.FuelType" class="form-control" >
                 <option value="Gas">Gas</option>
                 <option value="Diesel">Diesel</option>
                 <option value="Hybrid">Hybrid</option>
@@ -60,7 +65,7 @@
     <div class="form-row">
         <div class="form-group col-md-5">
             <label >Number of seats</label>
-            <select @bind="car.Seats" class="form-control" >
+            <select @bind="_car.Seats" class="form-control" >
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -72,18 +77,16 @@
             </select>
                 
         </div>
-    
-    
-       
+        
         <div class="form-group col-md-5">
             <label >Manufacture year</label>
-              <InputNumber type="text" class="form-control" placeholder="2021" @bind-Value="car.ManufactureYear"> </InputNumber>
+              <InputNumber type="text" class="form-control" placeholder="2021" @bind-Value="_car.ManufactureYear"> </InputNumber>
         </div>
     </div>
     <div class="form-row"> 
         <div class="form-group col-md-5">
             <label >Mileage</label>
-              <InputNumber type="text" class="form-control" placeholder="20000" @bind-Value="car.Mileage"> </InputNumber>
+              <InputNumber type="text" class="form-control" placeholder="20000" @bind-Value="_car.Mileage"> </InputNumber>
         </div>
         
     </div>
@@ -94,61 +97,45 @@
         </p>
     </div>
     
- <DataAnnotationsValidator/>
+     @if (_errorMessage != "")
+        {
+            <div class="alert alert-primary" role="alert">
+                @_errorMessage
+            </div>
+        }
+    
+    <DataAnnotationsValidator/>
     <ValidationSummary/>
     
 </EditForm>
-    
-        
-    
-
-
-
-       
-
-
-@*  </NotAuthorized>
-    <Authorized>*@
-       
- @*   </Authorized>
-</AuthorizeView>*@
 
 @code {
+    
+    private string _errorMessage="";
 
-    private readonly Vehicle car = new Vehicle()
+    private readonly Vehicle _car = new()
     {
         Transmission = "Automatic",
         FuelType = "Gas",
+        Seats = 5,
+        Type = "Sedan",
         
     };
-
     
-
-
     private async Task AddVehicle()
     {
+        //TODO by Tomas rethink the exception catching since duplicate vehicle is not only possible cause 
+        try
+        {
+            _errorMessage = "";
+            _car.Owner = ((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer;
+            await _vehicleService.AddVehicleAsync(_car);
         
-        
-        Console.WriteLine("licence number: "+ car.LicenseNo);
-        Console.WriteLine("brand: "+car.Brand);
-        Console.WriteLine("model: "+car.Model);
-        Console.WriteLine("type: "+car.Type);
-        Console.WriteLine("Transmition: "+car.Transmission); 
-        Console.WriteLine("fuel: "+car.FuelType);
-        Console.WriteLine("seats: "+car.Seats);
-        Console.WriteLine("manufacture year: "+car.ManufactureYear);
-        Console.WriteLine("mileage: "+car.Mileage);
-
-
-        
-        car.Owner = ((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer;
-        //car.Owner.Cpr= ((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer.Cpr;
-
-        Console.WriteLine(car.Owner.Cpr);
-       
-        await IvehicleService.AddVehicleAsync(car);
-
-        Console.WriteLine("request sent");
-        _navigationManager.NavigateTo("/ViewCars");
+            _navigationManager.NavigateTo("/view-vehicles");
+        }
+        catch (Exception )
+        {
+            _errorMessage = "Can not add a vehicle";
+        } 
     }
 }

@@ -1,114 +1,85 @@
-@page "/ViewCars"
+@page "/view-vehicles"
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
-@inject IVehicleService _ivehicleService;
+@using Entity.ModelData
+@inject IVehicleService _vehicleService;
 @inject NavigationManager _navigationManager
 @inject AuthenticationStateProvider _authenticationStateProvider
 
-<h3>ViewCars</h3>
+@if (_customer != null)
+{
+    <h3>@_customer.FirstName @_customer.LastName's fleet</h3>
+}
 
 
-                        <p class="card-text">
-                            <Button @onclick="@RedirectToNewCar" class="font-weight-light">Register new vehicle</Button>
-                        </p>
+<button class="btn btn-dark" @onclick="@(() => _navigationManager.NavigateTo("/vehicle-register"))">Register new vehicle</button>
 
-
-
-
-
-
+<hr/>
 <div class="row p-1">
-   @if (_vehicles != null)
-   {
-       foreach (var vehicle in _vehicles)
-       {
+    @if (_vehicles != null)
+    {
+        foreach (var vehicle in _vehicles)
+        {
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3 ">
+                <div class="card text-center">
+                    <div class="member-card">
+                        <div class="card-header p-3">
+                            <span class="iconify " data-icon="fluent:vehicle-car-profile-ltr-16-filled" data-width="30" data-height="30"></span>
+                            <h4>@vehicle.Brand @vehicle.Model </h4>
+                            <p>
+                                <strong>Licence number: @vehicle.LicenseNo</strong>
+                            </p>
 
-           <div class="col-lg-4 col-md-6 col-sm-12 mb-3 ">
-               <div class="card text-center">
-                   <div class="member-card">
-                       <div class="card-header p-3">
-                           <span class="iconify " data-icon="fluent:vehicle-car-profile-ltr-16-filled" data-width="30" data-height="30"></span>
-                           <h4>@vehicle.Brand @vehicle.Model </h4>
-                           <p> <strong>Licence number: @vehicle.LicenseNo</strong>   </p>
+                        </div>
+                        <div class="card-body">
 
-                       </div>
-                       <div class="card-body">
+                            <p class="card-text">
+                                <span class="font-weight-light">Mileage:</span> @vehicle.Mileage
+                            </p>
+                            <p class="card-text">
+                                <span class="font-weight-light">Transmition:</span> @vehicle.Transmission
+                            </p>
 
-                           <p class="card-text">
-                               <span class="font-weight-light">Mileage:</span> @vehicle.Mileage
-                           </p>
-                           <p class="card-text">
-                               <span class="font-weight-light">Transmition:</span> @vehicle.Transmission
-                           </p>
-                           
-                           <p class="card-text">
-                               <span class="font-weight-light">Seats:</span> @vehicle.Seats
-                           </p>
+                            <p class="card-text">
+                                <span class="font-weight-light">Seats:</span> @vehicle.Seats
+                            </p>
 
-                           <p class="card-text">
-                               <span class="font-weight-light">Type:</span> @vehicle.Type
-                           </p>
-                           
-                           <p class="card-text">
-                               <span class="font-weight-light">Manufacture year:</span> @vehicle.ManufactureYear
-                           </p>
-                           
+                            <p class="card-text">
+                                <span class="font-weight-light">Type:</span> @vehicle.Type
+                            </p>
 
-                           <p class="card-text">
-                               <Button @onclick="()=> RedirectToCreateListing(vehicle.LicenseNo)" class="font-weight-light">Rent vehicle</Button>
-                           </p>
-
-                           <p class="card-text">
-                               <Button @onclick="()=> DeleteVehicle(vehicle.LicenseNo)" class="font-weight-light">Delete vehicle</Button>
-                           </p>
-                       </div>
-                       <div class="card-footer">
-                       </div>
-                   </div>
-               </div>
-           </div>
+                            <p class="card-text">
+                                <span class="font-weight-light">Manufacture year:</span> @vehicle.ManufactureYear
+                            </p>
 
 
-       }
-   }
+                        </div>
+                        <div class="card-footer">
+                            <p class="card-text">
+                                <Button @onclick="@(() => _navigationManager.NavigateTo($"/listing-register/{vehicle.LicenseNo}"))" class="btn btn-dark">Lease vehicle</Button>
+
+                            </p>
+
+                            <p class="card-text">
+                                <Button @onclick="@(async () => await _vehicleService.RemoveVehicleAsync(vehicle.LicenseNo))" class="btn btn-dark">Delete vehicle</Button>
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
 </div>
 
 @code
 {
     private IList<Vehicle> _vehicles = new List<Vehicle>();
-    private IList<Vehicle> _vehicles2 = new List<Vehicle>();
-
-    private void RedirectToNewCar()
-    {
-        _navigationManager.NavigateTo("/VehicleRegister");
-    }
-
-    private void RedirectToCreateListing(string PassedLicenceNo)
-    {
-        _navigationManager.NavigateTo($"/ListingRegister/{PassedLicenceNo}");
-    }
-
-
-    private async Task DeleteVehicle(string licence)
-    {
-        await _ivehicleService.RemoveVehicleAsync(licence);
-        Console.WriteLine("#id 1 was invoked");
-        Console.WriteLine(licence);
-    }
-    
+    private Customer _customer;
 
     protected override async Task OnInitializedAsync()
     {
-    //TODO by tomas this is just a placeholder for demo, switch to GetAllVehiclesAsync once that will be implemented on bussines and databse
-        /*_vehicles.Add(await _ivehicleService.GetVehicleAsync("MK99222"));
-        _vehicles.Add(await _ivehicleService.GetVehicleAsync("YY00123"));
-        _vehicles.Add(await _ivehicleService.GetVehicleAsync("MM00123"));
-        _vehicles.Add(await _ivehicleService.GetVehicleAsync("AB11222"));*/
-        //_vehicles.Add(await _ivehicleService.GetVehicleAsync("XO43788"));
-        
-        _vehicles= await _ivehicleService.GetVehiclesByOwnerCprAsync(((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer.Cpr);
-       // _vehicles2 = await _ivehicleService.GetVehicleAsync("AD23456")
+        _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer;
+        _vehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
     }
-
-
 }

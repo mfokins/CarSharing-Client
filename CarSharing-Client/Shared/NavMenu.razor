@@ -13,43 +13,47 @@
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="Search">
+            <NavLink class="nav-link" href="search">
                 <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Search
             </NavLink>
         </li>
-        
-         <li class="nav-item px-3">
-                    <NavLink class="nav-link" href="login">
-                        <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Login
-                    </NavLink>
-                </li>
-        
-        
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="login">
+                <AuthorizeView Policy="MustBeLoggedIn">
+                    <Authorized>
+                        <span class="oi oi-lock-unlocked" aria-hidden="true"></span>Logout
+                    </Authorized>
+
+
+                    <NotAuthorized>
+                        <span class="oi oi-lock-locked" aria-hidden="true"></span>Login
+                    </NotAuthorized>
+                </AuthorizeView>
+
+            </NavLink>
+        </li>
+
+
         <AuthorizeView Policy="MustBeLoggedIn">
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="ViewCars">
-                    <span  class="bi bi-truck" aria-hidden="true"></span> View your fleet
+                <NavLink class="nav-link" href="view-vehicles">
+                    <span class="oi oi-spreadsheet" aria-hidden="true"></span> View your fleet
                 </NavLink>
             </li>
         </AuthorizeView>
-
-        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="ConnectionTestingPage">
-                                <span  class="bi bi-truck" aria-hidden="true"></span> The testing shit
-                            </NavLink>
-                        </li>
         
     </ul>
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool _collapseNavMenu = true;
 
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
-        collapseNavMenu = !collapseNavMenu;
+        _collapseNavMenu = !_collapseNavMenu;
     }
 
 }
