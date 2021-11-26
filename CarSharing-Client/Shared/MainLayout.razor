@@ -1,6 +1,4 @@
-@using LoginComponent
 @inherits LayoutComponentBase
-@inject NavigationManager NavigationManager
 
 <div class="page">
     <div class="sidebar">
@@ -18,13 +16,13 @@
     </div>
 </div>
 
-@*TODO include authorization 
+ 
 @code{
 
-    [CascadingParameter]
-    protected Task<AuthenticationState> AuthStat { get; set; }
+    // [CascadingParameter]
+    // protected Task<AuthenticationState> AuthStat { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    /*protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         var user = (await AuthStat).User;
@@ -32,6 +30,6 @@
         {
             NavigationManager.NavigateTo($"/login");
         }
-    }
+    }*/
 
-} *@
+} 

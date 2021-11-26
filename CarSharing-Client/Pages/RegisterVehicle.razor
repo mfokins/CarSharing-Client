@@ -1,0 +1,141 @@
+@page "/vehicle-register"
+@using CarSharing_Client.Models
+@using CarSharing_Client.Data
+@inject IVehicleService _vehicleService;
+@inject NavigationManager _navigationManager; 
+@inject AuthenticationStateProvider _authenticationStateProvider
+
+<h3>Register a new vehicle to your fleet</h3>
+
+<EditForm Model="@_car" OnValidSubmit="AddVehicle" >
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label>Licence number </label>
+            <InputText type="text" class="form-control" placeholder="BA12345" @bind-Value="_car.LicenseNo"> </InputText>
+        </div>
+        <div class="form-group col-md-5">
+            <label >Brand</label>
+            <InputText type="text" class="form-control" placeholder="Tesla" @bind-Value="_car.Brand"> </InputText>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label >Model</label>
+              <InputText type="text" class="form-control" placeholder="Model S" @bind-Value="_car.Model"> </InputText>
+        </div>
+        
+       
+        <div class="form-group col-md-5">
+            <label >Car type</label>
+            <select @bind="_car.Type" class="form-control" >
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Coupe">Coupe</option>
+                <option value="HatchBack">HatchBack</option>
+                <option value="Pickup Truck">Pickup Truck</option>
+                <option value="Van">Van</option>
+            </select>
+                       
+        </div>
+        
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label for="">Transmition</label>
+            <select class="form-control" @bind="_car.Transmission" >
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+            </select>
+        </div>
+        
+        <div class="form-group col-md-5">
+            <label for="">Fuel Type</label>
+            <select @bind="_car.FuelType" class="form-control" >
+                <option value="Gas">Gas</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Electric">Electric</option>
+                <option value="Hydrogen">Hydrogen</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label >Number of seats</label>
+            <select @bind="_car.Seats" class="form-control" >
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+            </select>
+                
+        </div>
+        
+        <div class="form-group col-md-5">
+            <label >Manufacture year</label>
+              <InputNumber type="text" class="form-control" placeholder="2021" @bind-Value="_car.ManufactureYear"> </InputNumber>
+        </div>
+    </div>
+    <div class="form-row"> 
+        <div class="form-group col-md-5">
+            <label >Mileage</label>
+              <InputNumber type="text" class="form-control" placeholder="20000" @bind-Value="_car.Mileage"> </InputNumber>
+        </div>
+        
+    </div>
+    
+    <div class="col-4 ml-2 mt-4">
+        <p class="actions">
+            <button class="btn btn-outline-dark " type="submit">Register vehicle</button>
+        </p>
+    </div>
+    
+     @if (_errorMessage != "")
+        {
+            <div class="alert alert-primary" role="alert">
+                @_errorMessage
+            </div>
+        }
+    
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    
+</EditForm>
+
+@code {
+    
+    private string _errorMessage="";
+
+    private readonly Vehicle _car = new()
+    {
+        Transmission = "Automatic",
+        FuelType = "Gas",
+        Seats = 5,
+        Type = "Sedan",
+        
+    };
+    
+    private async Task AddVehicle()
+    {
+        //TODO by Tomas rethink the exception catching since duplicate vehicle is not only possible cause 
+        try
+        {
+            _errorMessage = "";
+            _car.Owner = ((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer;
+            await _vehicleService.AddVehicleAsync(_car);
+        
+            _navigationManager.NavigateTo("/view-vehicles");
+        }
+        catch (Exception )
+        {
+            _errorMessage = "Can not add a vehicle";
+        } 
+    }
+}

@@ -1,12 +1,12 @@
 ﻿@page "/search"
-
 @using Models
 @using Data
 
-@inject NavigationManager NavigationManager
-@inject IListingService ListingService
+@inject NavigationManager _navigationManager
+@inject IListingService _listingService
 
-<h2 class="p-2">Look for a car</h2>
+<h2 class="p-2">Search a car</h2>
+
 
 <EditForm Model="@_params" OnValidSubmit="@SearchForListing">
     <div class="card card-registration rounded col-8 m-3">
@@ -29,7 +29,10 @@
                     <InputDate class="form-control" @bind-Value="_params.DateTo"/>
                 </p>
             </div>
+            
+             
             @* <p> *@
+            @* //TODO by tomas 26/11/2021 either remove or implement search by vehicle type *@
             @*     Car Type: *@
             @*     <select class="form-control selectpicker" @bind="ListingItem.Vehicle.Type" style="width:150px"> *@
             @*         <option value="null">Select</option> *@
@@ -75,12 +78,12 @@
                                 @listing.Location
                             </p>
                             <p>
-                                <strong>@listing.Vehicle.LicenseNo</strong>
+                                <strong>Licence number: @listing.Vehicle.LicenseNo</strong>
                             </p>
                         </div>
                         <div class="card-body">
                             <p class="card-text">
-                                <span class="font-weight-light">Price:</span> @listing.Price
+                                <span class="font-weight-light">Price:</span> @listing.Price DKK/Day
                             </p>
                             <p class="card-text">
                                 <span class="font-weight-light">Type:</span> @listing.Vehicle.Type
@@ -107,15 +110,14 @@
 
     private async Task SearchForListing()
     {
-    //Todo By Ion - pass the class _param
-    // or send arguments to another page and get there the list of listings
+
         if (_params.DateFrom != null && _params.DateTo != null)
         {
-    //Todo 01.11 by Ion - change the checking of dates
+    //Todo 01.11 by Ion - move  the checking of dates to business
             if (_params.DateFrom <= _params.DateTo)
             {
                 _errorMessage = "";
-                _listings = await ListingService.GetListingsAsync(_params.Location, _params.DateFrom.Value, _params.DateTo.Value);
+                _listings = await _listingService.GetListingsAsync(_params.Location, _params.DateFrom.Value, _params.DateTo.Value);
             }
             else
             {

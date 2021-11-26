@@ -6,11 +6,15 @@ namespace CarSharing_Client.Data
 {
     public interface IVehicleService
     {
-        Task<IList<Vehicle>> GetAllVehiclesAsync(); 
-        Task AddVehicleAsync(Vehicle adult);
+
+        Task AddVehicleAsync(Vehicle vehicle);
         Task RemoveVehicleAsync(string licenseNo);
-        Task UpdateVehicleAsync(Vehicle adult);
-        
+        Task UpdateVehicleAsync(Vehicle vehicle);
+
         Task<Vehicle> GetVehicleAsync(string licenseNo);
+
+        Task<IList<Vehicle>> GetVehiclesByOwnerCprAsync(string cpr);
+
     }
 }
+    

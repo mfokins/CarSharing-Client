@@ -7,9 +7,9 @@ namespace CarSharing_Client.Data
 {
     public interface IListingService
     {
-        Task AddListingAsync(Listing adult);
+        Task AddListingAsync(Listing listing);
         Task RemoveListingAsync(int id);
-        Task UpdateListingAsync(Listing adult);
+        Task UpdateListingAsync(Listing listing);
         Task<IList<Listing>> GetListingsAsync(string location, DateTime dateFrom, DateTime dateTo);
     }
 }
