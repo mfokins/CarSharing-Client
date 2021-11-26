@@ -81,6 +81,7 @@ namespace CarSharing_Client.Data.Impl
             
             string result = await responseMessage.Content.ReadAsStringAsync();
 
+            Console.WriteLine(result);
             IList<Vehicle> vehicles = JsonSerializer.Deserialize<IList<Vehicle>>(result, new JsonSerializerOptions()
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase

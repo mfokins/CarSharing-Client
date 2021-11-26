@@ -2,6 +2,7 @@
 @using CarSharing_Client.Data
 @using CarSharing_Client.Models
 @using Microsoft.AspNetCore.Components
+@using System.Text.Json
 @inject IListingService _listingService
 @inject IVehicleService _vehicleService
 
@@ -67,7 +68,7 @@
         Console.WriteLine(_listing.Price);
         Console.WriteLine(_listing.Location);
         Console.WriteLine(PassedLicenceNo);
-        
+        Console.WriteLine(JsonSerializer.Serialize( _listing));
         
         //TODO by Tomas switch this duplicit database load for a cache retrieval
         _listing.Vehicle = await _vehicleService.GetVehicleAsync(PassedLicenceNo);

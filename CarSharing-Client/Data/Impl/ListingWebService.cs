@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using CarSharing_Client.Extensions;
 using CarSharing_Client.Models;
 
 namespace CarSharing_Client.Data.Impl
@@ -22,8 +23,10 @@ namespace CarSharing_Client.Data.Impl
         {
             string listingAsJson = JsonSerializer.Serialize(listing, new JsonSerializerOptions()
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = { new DateTimeConverter() }
             });
+            Console.WriteLine(listingAsJson);
             HttpContent content = new StringContent(listingAsJson,
                 Encoding.UTF8,
                 "application/json");
