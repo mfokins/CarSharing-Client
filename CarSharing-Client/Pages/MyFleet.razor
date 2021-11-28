@@ -12,7 +12,7 @@
 }
 
 
-<button class="btn btn-dark" @onclick="@(() => _navigationManager.NavigateTo("/vehicle-register"))">Register new vehicle</button>
+<button class="btn btn-dark" @onclick="@(() => _navigationManager.NavigateTo($"/vehicle-register"))">Register new vehicle</button>
 
 <hr/>
 <div class="row p-1">
@@ -33,7 +33,46 @@
                         </div>
                         <div class="card-body">
 
-                            <p class="card-text">
+                            <div  class="d-none" >
+                                @GetVehicleListing(vehicle);
+                            </div>
+                            
+                            @if ( _listing!=null)
+                            {
+                                
+                                <h4> Vehicle is listed</h4>
+
+                                <p class="card-text">
+                                    <span class="font-weight-light">From</span> @_listing.DateFrom
+                                </p>
+
+                                <p class="card-text">
+                                    <span class="font-weight-light">To:</span> @_listing.DateTo
+                                </p>
+
+                                <p class="card-text">
+                                    <span class="font-weight-light">Daily price:</span> @_listing.Price
+                                </p>
+
+                                <p class="card-text">
+                                    <span class="font-weight-light">Location: </span> @_listing.Location
+                                </p>
+
+                                <p class="card-text">
+                                    <span class="font-weight-light">Vehicle was listed at: </span> @_listing.ListedDate
+                                </p>
+
+                               
+                            }
+                            else
+                            {
+                                <h4>Vehicle is not listed</h4>
+                            }
+                            
+                            
+                            
+                            
+                            @*<p class="card-text">
                                 <span class="font-weight-light">Mileage:</span> @vehicle.Mileage
                             </p>
                             <p class="card-text">
@@ -50,7 +89,7 @@
 
                             <p class="card-text">
                                 <span class="font-weight-light">Manufacture year:</span> @vehicle.ManufactureYear
-                            </p>
+                            </p>*@
 
 
                         </div>
@@ -63,6 +102,11 @@
                             <p class="card-text">
                                 <Button @onclick="@(async () => await _vehicleService.RemoveVehicleAsync(vehicle.LicenseNo))" class="btn btn-dark">Delete vehicle</Button>
                             </p>
+                            
+                            <p class="card-text">
+                                <Button @onclick="@( () => _navigationManager.NavigateTo($"/vehicle-modify"))" class="btn btn-dark">Open vehicle</Button>
+                            </p>
+                            
 
                         </div>
                     </div>
@@ -76,10 +120,36 @@
 {
     private IList<Vehicle> _vehicles = new List<Vehicle>();
     private Customer _customer;
+    Listing _listing;
+    
+   
+    
 
     protected override async Task OnInitializedAsync()
     {
         _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer;
         _vehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
+    }
+
+
+    private async Task GetVehicleListing(Vehicle vehicle)
+    {
+        //TODO by Tomas delete
+        Listing listing = new()
+        {
+            DateFrom = DateTime.Now,
+            DateTo = DateTime.Now.AddDays(7),
+            ListedDate = DateTime.Now,
+            Location = "Horsens",
+            Price = 100,
+            Vehicle = vehicle
+        };
+        
+        //TODO by tomas switch the new for data source
+        IList <Listing> vehicleListing = new List<Listing>();
+        //TODO by Tomas delete line below
+        vehicleListing.Add(listing);
+        _listing = vehicleListing.First();
+        
     }
 }
