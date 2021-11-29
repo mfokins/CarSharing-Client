@@ -12,7 +12,7 @@ namespace CarSharing_Client.Data.Impl
     public class ListingWebService : IListingService
         //10.154.212.52
     {
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "http://10.154.212.129:8080";
         private readonly HttpClient _client;
 
         public ListingWebService()
@@ -35,7 +35,7 @@ namespace CarSharing_Client.Data.Impl
 
             HttpResponseMessage responseMessage = await _client.PostAsync(Uri + "/listings", content);
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
+                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
         }
 
         public async Task RemoveListingAsync(int id)

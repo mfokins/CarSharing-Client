@@ -77,9 +77,9 @@
             await _listingService.AddListingAsync(_listing);
             _navigationManager.NavigateTo("/view-vehicles");
         }
-        catch (Exception )
+        catch (Exception e)
         {
-            _errorMessage = "Can not add listing";
+            _errorMessage = e.Message;
         } 
     }
 

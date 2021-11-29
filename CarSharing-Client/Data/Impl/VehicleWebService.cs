@@ -11,7 +11,7 @@ namespace CarSharing_Client.Data.Impl
 {
     public class VehicleWebService : IVehicleService
     {
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "http://10.154.212.129:8080";
         private readonly HttpClient _client;
 
         public VehicleWebService()
@@ -78,7 +78,7 @@ namespace CarSharing_Client.Data.Impl
             HttpResponseMessage responseMessage = await _client.GetAsync(Uri + $"/vehicles/owner?cpr={cpr}");
 
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
+                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
 
             string result = await responseMessage.Content.ReadAsStringAsync();
             

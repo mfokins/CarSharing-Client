@@ -2,6 +2,7 @@
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
 @using Entity.ModelData
+@using CarSharing_Client.Authentication
 @inject IVehicleService _vehicleService;
 @inject NavigationManager _navigationManager
 @inject AuthenticationStateProvider _authenticationStateProvider
@@ -104,7 +105,7 @@
                             </p>
                             
                             <p class="card-text">
-                                <Button @onclick="@( () => _navigationManager.NavigateTo($"/vehicle-modify"))" class="btn btn-dark">Open vehicle</Button>
+                                <Button @onclick="@( () => _navigationManager.NavigateTo($"/vehicle-edit/{vehicle.LicenseNo}"))" class="btn btn-dark">Open vehicle</Button>
                             </p>
                             
 
@@ -127,7 +128,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer;
+        _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
         _vehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
     }
 

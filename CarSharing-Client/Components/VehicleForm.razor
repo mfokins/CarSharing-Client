@@ -1,0 +1,111 @@
+﻿@using Microsoft.AspNetCore.Components
+@using CarSharing_Client.Models
+
+<EditForm Model="@Vehicle" OnValidSubmit="@SubmitHandler" >
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label>Licence number </label>
+            <InputText type="text" class="form-control" placeholder="BA12345" @bind-Value="Vehicle.LicenseNo"> </InputText>
+        </div>
+        <div class="form-group col-md-5">
+            <label >Brand</label>
+            <InputText type="text" class="form-control" placeholder="Tesla" @bind-Value="Vehicle.Brand"> </InputText>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label >Model</label>
+              <InputText type="text" class="form-control" placeholder="Model S" @bind-Value="Vehicle.Model"> </InputText>
+        </div>
+        
+       
+        <div class="form-group col-md-5">
+            <label >Car type</label>
+            <select @bind="Vehicle.Type" class="form-control" >
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Coupe">Coupe</option>
+                <option value="HatchBack">HatchBack</option>
+                <option value="Pickup Truck">Pickup Truck</option>
+                <option value="Van">Van</option>
+            </select>
+                       
+        </div>
+        
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label for="">Transmition</label>
+            <select class="form-control" @bind="Vehicle.Transmission" >
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+            </select>
+        </div>
+        
+        <div class="form-group col-md-5">
+            <label for="">Fuel Type</label>
+            <select @bind="Vehicle.FuelType" class="form-control" >
+                <option value="Petrol">Petrol</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Electric">Electric</option>
+                <option value="Hydrogen">Hydrogen</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label >Number of seats</label>
+            <select @bind="Vehicle.Seats" class="form-control" >
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+            </select>
+                
+        </div>
+        
+        <div class="form-group col-md-5">
+            <label >Manufacture year</label>
+              <InputNumber type="text" class="form-control" placeholder="2021" @bind-Value="Vehicle.ManufactureYear"> </InputNumber>
+        </div>
+    </div>
+    <div class="form-row"> 
+        <div class="form-group col-md-5">
+            <label >Mileage</label>
+              <InputNumber type="text" class="form-control" placeholder="20000" @bind-Value="Vehicle.Mileage"> </InputNumber>
+        </div>
+        
+    </div>
+    
+    <div class="col-4 ml-2 mt-4">
+        <p class="actions">
+            <button class="btn btn-outline-dark " type="submit">Submit vehicle</button>
+            <button class="btn btn-danger" type="button" @onclick="CancelHandler">Cancel</button>
+        </p>    
+    </div>
+    
+     
+    
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    
+</EditForm>
+
+@functions {
+    [Parameter]
+    public Vehicle Vehicle { get; set; }
+
+    [Parameter]
+    public EventCallback SubmitHandler { get; set; }
+    
+    [Parameter]
+    public EventCallback CancelHandler { get; set; }
+}
