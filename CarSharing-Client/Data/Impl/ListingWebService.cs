@@ -52,7 +52,8 @@ namespace CarSharing_Client.Data.Impl
         {
             HttpResponseMessage responseMessage =
                 await _client.GetAsync(Uri +
-                                       $"/listings?location={location}&dateFrom={dateFrom:yyyy-MM-ddTHH:mm:ssZ}&dateTo={dateTo:yyyy-MM-ddTHH:mm:ssZ}");
+                                       $"/listings?location={location}&dateFrom={dateFrom:yyyy-MM-ddTH':'mm':'ssZ}&dateTo={dateTo:yyyy-MM-ddTHH':'mm':'ssZ}");
+            
 
             if (!responseMessage.IsSuccessStatusCode)
                 throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
