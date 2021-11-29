@@ -1,57 +1,13 @@
 @page "/listing-register/{LicenceNo}"
 @using CarSharing_Client.Data
 @using CarSharing_Client.Models
-@using Microsoft.AspNetCore.Components
+@using CarSharing_Client.Components
 @inject IListingService _listingService
 @inject IVehicleService _vehicleService
 @inject NavigationManager _navigationManager
 
 
-
-
-<EditForm Model="_listing"  OnValidSubmit="AddListing" >
-    <div class="form-row">
-        <div class="form-group col-md-5">
-            <label>Date from </label>
-            <InputDate  class="form-control" placeholder="@DateTime.UtcNow" @bind-Value="_listing.DateFrom"> </InputDate>
-        </div>
-        <div class="form-group col-md-5">
-            <label >Date to</label>
-            <InputDate  class="form-control" placeholder="@DateTime.UtcNow" @bind-Value="_listing.DateTo"> </InputDate>
-        </div>
-    </div>
-    
-    <div class="form-row">
-        <div class="form-group col-md-5">
-            <label >Price</label>
-            <InputNumber  class="form-control" placeholder="Amount in DKK" @bind-Value="_listing.Price"> </InputNumber>
-        </div>
-        
-        <div class="form-group col-md-5">
-            <label >Location</label>
-            <InputText type="text" class="form-control" placeholder="City" @bind-Value="_listing.Location"> </InputText>
-        </div>
-        
-    </div>
-    
-    <div class="col-4 ml-2 mt-4">
-        <p class="actions">
-            <button class="btn btn-outline-dark " type="submit">Lease vehicle</button>
-        </p>
-    </div>
-    
-    
-    @if (_errorMessage != "")
-    {
-        <div class="alert alert-primary" role="alert">
-            @_errorMessage
-        </div>
-    }
-    
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
-    
-</EditForm>
+<ListingForm Listing="@_listing" SubmitHandler="AddListing" CancelHandler="Cancel" ErrorMessage="@_errorMessage"/>
 
 @code {
 
@@ -68,7 +24,7 @@
 
     private async Task AddListing()
     {
-    //TODO by Tomas switch this duplicit database load for a cache retrieval
+         //TODO by Tomas switch this duplicate database load for a cache retrieval
         _listing.Vehicle = await _vehicleService.GetVehicleAsync(LicenceNo);
 
         try
@@ -77,10 +33,15 @@
             await _listingService.AddListingAsync(_listing);
             _navigationManager.NavigateTo("/view-vehicles");
         }
-        catch (Exception )
+        catch (Exception e)
         {
-            _errorMessage = "Can not add listing";
+            _errorMessage = e.Message;
         } 
+    }
+
+    private void Cancel()
+    {
+        _navigationManager.NavigateTo("/view-vehicles");
     }
 
 }

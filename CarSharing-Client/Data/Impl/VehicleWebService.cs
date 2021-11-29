@@ -11,7 +11,7 @@ namespace CarSharing_Client.Data.Impl
 {
     public class VehicleWebService : IVehicleService
     {
-        private const string Uri = "http://10.154.212.86:8080";
+        private const string Uri = "http://10.154.212.129:8080";
         private readonly HttpClient _client;
 
         public VehicleWebService()
@@ -33,15 +33,15 @@ namespace CarSharing_Client.Data.Impl
 
             HttpResponseMessage responseMessage = await _client.PostAsync(Uri + "/vehicles", content);
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
+                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
         }
 
         public async Task RemoveVehicleAsync(string licenseNo)
         {
-            var response = await _client.DeleteAsync($"{Uri}/vehicles/{licenseNo}");
-            if (!response.IsSuccessStatusCode)
+            var responseMessage = await _client.DeleteAsync($"{Uri}/vehicles/{licenseNo}");
+            if (!responseMessage.IsSuccessStatusCode)
             {
-                throw new Exception($"Error: {response.StatusCode}, {response.ReasonPhrase}");
+                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
             }
         }
 
@@ -62,7 +62,7 @@ namespace CarSharing_Client.Data.Impl
             HttpResponseMessage responseMessage = await _client.GetAsync(Uri + $"/vehicles?licenseNo={licenseNo}");
 
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
+                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
 
             string result = await responseMessage.Content.ReadAsStringAsync();
 
@@ -78,7 +78,7 @@ namespace CarSharing_Client.Data.Impl
             HttpResponseMessage responseMessage = await _client.GetAsync(Uri + $"/vehicles/owner?cpr={cpr}");
 
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
+                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
 
             string result = await responseMessage.Content.ReadAsStringAsync();
             

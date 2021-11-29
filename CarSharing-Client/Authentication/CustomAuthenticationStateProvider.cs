@@ -3,39 +3,39 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
-using CarSharing_Client.Data.Impl;
+using CarSharing_Client.Data;
 using Entity.ModelData;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 
-namespace CarSharing_Client.Data {
+namespace CarSharing_Client.Authentication {
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider {
-    private readonly IJSRuntime jsRuntime;
-    private readonly IUserService IUserService;
+    private readonly IJSRuntime _jsRuntime;
+    private readonly IUserService _userService;
 
-    public Customer cachedCustomer;
+    public Customer CachedCustomer;
 
-    public CustomAuthenticationStateProvider(IJSRuntime jsRuntime, IUserService IUserService) {
-        this.jsRuntime = jsRuntime;
-        this.IUserService = IUserService;
+    public CustomAuthenticationStateProvider(IJSRuntime jsRuntime, IUserService userService) {
+        this._jsRuntime = jsRuntime;
+        this._userService = userService;
     }
 
     
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var identity = new ClaimsIdentity();
-        if (cachedCustomer == null)
+        if (CachedCustomer == null)
         {
-            string accountAsJson = await jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "currentUser");
+            string accountAsJson = await _jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "currentUser");
             if (!string.IsNullOrEmpty(accountAsJson))
             {
-                cachedCustomer = JsonSerializer.Deserialize<Customer>(accountAsJson);
-                identity = SetupClaimsForAccount( cachedCustomer);
+                CachedCustomer = JsonSerializer.Deserialize<Customer>(accountAsJson);
+                identity = SetupClaimsForAccount( CachedCustomer);
             }
         }
         else
         {
-            identity = SetupClaimsForAccount( cachedCustomer);
+            identity = SetupClaimsForAccount( CachedCustomer);
         }
 
         ClaimsPrincipal cachedClaimsPrincipal = new ClaimsPrincipal(identity);
@@ -44,22 +44,21 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider {
     
     public async Task ValidateLogin(string username, string password)
     {
-        Console.WriteLine("Validating log in");
         if (string.IsNullOrEmpty(username)) throw new Exception("Enter username");
         if (string.IsNullOrEmpty(password)) throw new Exception("Enter password");
 
-        ClaimsIdentity identity = new ClaimsIdentity();
+        ClaimsIdentity identity;
         try
         {
-            Customer customer = await IUserService.ValidateCustomer(username, password);
+            Customer customer = await _userService.ValidateCustomer(username, password);
             identity = SetupClaimsForAccount(customer);
             string serialisedData = JsonSerializer.Serialize(customer);
-            await jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "currentUser", serialisedData);
-            cachedCustomer = customer;
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "currentUser", serialisedData);
+            CachedCustomer = customer;
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            throw e;
+            throw;
         }
 
         NotifyAuthenticationStateChanged(
@@ -67,9 +66,9 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider {
     }
 
     public async Task Logout() {
-        cachedCustomer = null;
+        CachedCustomer = null;
         var user = new ClaimsPrincipal(new ClaimsIdentity());
-         await jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "currentUser", "");
+         await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "currentUser", "");
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
     }
 

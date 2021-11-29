@@ -1,0 +1,46 @@
+﻿@page "/vehicle-edit/{LicenseNo}"
+
+@using CarSharing_Client.Components
+@using CarSharing_Client.Data
+@using CarSharing_Client.Models
+
+@inject IVehicleService _vehicleWebService
+@inject NavigationManager _navigationManager
+
+<h3>Edit Vehicle</h3>
+
+<VehicleForm Vehicle="_vehicleToEdit" SubmitHandler="UpdateVehicle" CancelHandler="Cancel" ErrorMessage="@_errorMessage"/>
+
+
+@code {
+    [Parameter]
+    public string LicenseNo { get; set; }
+
+    private Vehicle _vehicleToEdit = new();
+    private string _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _vehicleToEdit = await _vehicleWebService.GetVehicleAsync(LicenseNo);
+            _errorMessage = "";
+        }
+        catch (Exception e)
+        {
+            _errorMessage = e.Message;
+        }
+    }
+
+    private async Task UpdateVehicle()
+    {
+        await _vehicleWebService.UpdateVehicleAsync(_vehicleToEdit);
+        _navigationManager.NavigateTo("/view-vehicles");
+    }
+
+    private void Cancel()
+    {
+        _navigationManager.NavigateTo("/view-vehicles");
+    }
+
+}

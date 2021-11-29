@@ -11,5 +11,8 @@ namespace CarSharing_Client.Data
         Task RemoveListingAsync(int id);
         Task UpdateListingAsync(Listing listing);
         Task<IList<Listing>> GetListingsAsync(string location, DateTime dateFrom, DateTime dateTo);
+        Task<Listing> GetListingsByVehicleAsync(string licenseNo);
+        Task<Listing> GetListingById(int id);
+
     }
 }

@@ -2,7 +2,10 @@
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
 @using Entity.ModelData
+@using CarSharing_Client.Authentication
+
 @inject IVehicleService _vehicleService;
+@inject IListingService _listingService
 @inject NavigationManager _navigationManager
 @inject AuthenticationStateProvider _authenticationStateProvider
 
@@ -12,7 +15,7 @@
 }
 
 
-<button class="btn btn-dark" @onclick="@(() => _navigationManager.NavigateTo("/vehicle-register"))">Register new vehicle</button>
+<button class="btn btn-dark" @onclick="@(() => _navigationManager.NavigateTo($"/vehicle-register"))">Register new vehicle</button>
 
 <hr/>
 <div class="row p-1">
@@ -33,7 +36,43 @@
                         </div>
                         <div class="card-body">
 
-                            <p class="card-text">
+                            
+                            @if ( _listings.ContainsKey(vehicle.LicenseNo))
+                            {
+                                Listing listing = _listings[vehicle.LicenseNo];
+                                    
+                                <h4><span class="oi oi-circle-check" data-width="30" data-height="30"></span> Vehicle is listed</h4>
+                                <p class="card-text">
+                                    <span class="font-weight-light">From</span> @listing.DateFrom
+                                </p>
+
+                                <p class="card-text">
+                                    <span class="font-weight-light">To:</span> @listing.DateTo
+                                </p>
+
+                                <p class="card-text">
+                                    <span class="font-weight-light">Daily price:</span> @listing.Price
+                                </p>
+
+                                <p class="card-text">
+                                    <span class="font-weight-light">Location: </span> @listing.Location
+                                </p>
+
+                                <p class="card-text">
+                                    <span class="font-weight-light">Vehicle was listed at: </span> @listing.ListedDate
+                                </p>
+
+                               
+                            }
+                            else
+                            {
+                                <h4>Vehicle is not listed</h4>
+                            }
+                            
+                            
+                            
+                            
+                            @*<p class="card-text">
                                 <span class="font-weight-light">Mileage:</span> @vehicle.Mileage
                             </p>
                             <p class="card-text">
@@ -50,7 +89,7 @@
 
                             <p class="card-text">
                                 <span class="font-weight-light">Manufacture year:</span> @vehicle.ManufactureYear
-                            </p>
+                            </p>*@
 
 
                         </div>
@@ -63,6 +102,23 @@
                             <p class="card-text">
                                 <Button @onclick="@(async () => await _vehicleService.RemoveVehicleAsync(vehicle.LicenseNo))" class="btn btn-dark">Delete vehicle</Button>
                             </p>
+                            
+                            <p class="card-text">
+                                <Button @onclick="@( () => _navigationManager.NavigateTo($"/vehicle-edit/{vehicle.LicenseNo}"))" class="btn btn-dark">Open vehicle</Button>
+                            </p>
+                            
+                            @if (_listings.ContainsKey(vehicle.LicenseNo))
+                            {
+                                int listingId = _listings[vehicle.LicenseNo].Id;
+                                
+                                <p class="card-text">
+                                    <Button @onclick="@(() => _navigationManager.NavigateTo($"/listing-edit/{listingId}"))" class="btn btn-dark">Open listing</Button>
+                                </p>
+
+                                <p class="card-text">
+                                    <Button @onclick="@(async () => await _listingService.RemoveListingAsync(listingId))" class="btn btn-dark">Delete listing</Button>
+                                </p>
+                            }
 
                         </div>
                     </div>
@@ -75,11 +131,24 @@
 @code
 {
     private IList<Vehicle> _vehicles = new List<Vehicle>();
+    private readonly Dictionary<string, Listing> _listings = new();
     private Customer _customer;
+
 
     protected override async Task OnInitializedAsync()
     {
-        _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).cachedCustomer;
+        _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
         _vehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
+        await InitializeListingDict();
+    }
+
+    private async Task InitializeListingDict()
+    {
+        foreach (var vehicle in _vehicles)
+        {
+            Listing listing = await _listingService.GetListingsByVehicleAsync(vehicle.LicenseNo);
+            if(listing != null)
+                _listings.Add(vehicle.LicenseNo,listing);
+        }
     }
 }

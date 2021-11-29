@@ -103,7 +103,7 @@
 
     private readonly SearchParams _params = new()
     {
-        DateFrom = DateTime.Now,
+        DateFrom = DateTime.UtcNow
     };
 
     private IList<Listing> _listings;

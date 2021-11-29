@@ -7,16 +7,24 @@ namespace CarSharing_Client.Extensions
 {
     public class DateTimeConverter : JsonConverter<DateTime>
     {
-        private const string Format = "yyyy-MM-dd'T'HH:mm:ssZ";
+        private const string Format = "yyyy-MM-dd'T'HH':'mm':'ssZ";
+        private const string FormatNoTimeZone = "yyyy-MM-dd'T'HH':'mm':'ss";
 
         public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return DateTime.ParseExact(reader.GetString() ?? string.Empty, Format, CultureInfo.InvariantCulture);
+            try
+            {
+                return DateTime.ParseExact(reader.GetString() ?? string.Empty, Format, CultureInfo.CreateSpecificCulture("en-US"));
+            }
+            catch (FormatException)
+            {
+                return DateTime.ParseExact(reader.GetString() ?? string.Empty, FormatNoTimeZone, CultureInfo.CreateSpecificCulture("en-US"));
+            }
         }
 
         public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(value.ToUniversalTime().ToString(Format));
+            writer.WriteStringValue(value.ToString(Format));
         }
     }
 }

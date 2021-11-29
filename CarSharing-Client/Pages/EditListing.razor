@@ -1,0 +1,43 @@
+﻿@page "/listing-edit/{Id:int}"
+@using CarSharing_Client.Components
+@using CarSharing_Client.Data
+@using CarSharing_Client.Models
+
+@inject IListingService _listingWebService
+@inject NavigationManager _navigationManager
+
+<h3>Edit Listing</h3>
+
+<ListingForm Listing="@_listingToEdit" SubmitHandler="AddListing" CancelHandler="Cancel" ErrorMessage="@_errorMessage"/>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private Listing _listingToEdit = new();
+    private string _errorMessage;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _listingToEdit = await _listingWebService.GetListingById(Id);
+            _errorMessage = "";
+        }
+        catch (Exception e)
+        {
+            _errorMessage = e.Message;
+        }
+    }
+
+    private async Task AddListing()
+    {
+        await _listingWebService.UpdateListingAsync(_listingToEdit);
+        _navigationManager.NavigateTo("/view-vehicles");
+    }
+
+    private void Cancel()
+    {
+        _navigationManager.NavigateTo("/view-vehicles");
+    }
+
+}
