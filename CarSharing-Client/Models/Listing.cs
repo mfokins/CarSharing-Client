@@ -1,12 +1,12 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace CarSharing_Client.Models
 {
     public class Listing
     {
         
+        public int Id { get; set; }
         public DateTime ListedDate { get; set; }
         
         [Required(ErrorMessage = "Please provide the date from which you want the vehicle to be available.")]

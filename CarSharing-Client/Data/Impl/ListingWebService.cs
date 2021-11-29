@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -40,31 +41,87 @@ namespace CarSharing_Client.Data.Impl
 
         public async Task RemoveListingAsync(int id)
         {
-            throw new NotImplementedException();
+            var responseMessage = await _client.DeleteAsync($"{Uri}/listings/{id}");
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+            }
         }
 
         public async Task UpdateListingAsync(Listing listing)
         {
-            throw new NotImplementedException();
+            string listingAsJson = JsonSerializer.Serialize(listing, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = {new DateTimeConverter()}
+            });
+            HttpContent content = new StringContent(listingAsJson,
+                Encoding.UTF8,
+                "application/json");
+            await _client.PatchAsync($"{Uri}/listings/{listing.Id}", content);
         }
 
         public async Task<IList<Listing>> GetListingsAsync(string location, DateTime dateFrom, DateTime dateTo)
         {
             HttpResponseMessage responseMessage =
-                await _client.GetAsync(Uri +
-                                       $"/listings?location={location}&dateFrom={dateFrom:yyyy-MM-ddTH':'mm':'ssZ}&dateTo={dateTo:yyyy-MM-ddTHH':'mm':'ssZ}");
+                await _client.GetAsync(Uri + $"/listings?location={location}&dateFrom={dateFrom:yyyy-MM-ddTHH':'mm':'ssZ}&dateTo={dateTo:yyyy-MM-ddTHH':'mm':'ssZ}");
             
 
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
+                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
 
             string result = await responseMessage.Content.ReadAsStringAsync();
 
             IList<Listing> listings = JsonSerializer.Deserialize<IList<Listing>>(result, new JsonSerializerOptions()
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = {new DateTimeConverter()}
             });
             return listings;
+        }
+
+        public async Task<Listing> GetListingsByVehicleAsync(string licenseNo)
+        {
+            HttpResponseMessage responseMessage =
+                await _client.GetAsync(Uri + $"/listings/vehicle?licenseNo={licenseNo}");
+
+
+            if (!responseMessage.IsSuccessStatusCode)
+                //TODO Handle this exception properly
+                return null;
+                //throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+
+            string result = await responseMessage.Content.ReadAsStringAsync();
+
+            IList<Listing> listings = JsonSerializer.Deserialize<IList<Listing>>(result, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = {new DateTimeConverter()}
+            });
+            
+            if (listings == null || !listings.Any())
+                return null;
+            
+            return listings.First();
+        }
+
+        public async Task<Listing> GetListingById(int id)
+        {
+            HttpResponseMessage responseMessage =
+                await _client.GetAsync(Uri + $"/listings/{id}");
+            
+
+            if (!responseMessage.IsSuccessStatusCode)
+                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+
+            string result = await responseMessage.Content.ReadAsStringAsync();
+
+            Listing listing = JsonSerializer.Deserialize<Listing>(result, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = {new DateTimeConverter()}
+            });
+            return listing;
         }
     }
 }

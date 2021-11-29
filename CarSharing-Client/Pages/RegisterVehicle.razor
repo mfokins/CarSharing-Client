@@ -9,14 +9,8 @@
 
 <h3>Register a new vehicle to your fleet</h3>
 
-<VehicleForm Vehicle="@_car" SubmitHandler="AddVehicle" CancelHandler="Cancel"/>
- 
-@if (_errorMessage != "")
-        {
-            <div class="alert alert-primary" role="alert">
-                @_errorMessage
-            </div>
-        }
+<VehicleForm Vehicle="@_car" SubmitHandler="AddVehicle" CancelHandler="Cancel" ErrorMessage="@_errorMessage"/>
+
 
 @code {
     

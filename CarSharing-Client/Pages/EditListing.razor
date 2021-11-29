@@ -1,29 +1,26 @@
-﻿@page "/vehicle-edit/{LicenseNo}"
-
+﻿@page "/listing-edit/{Id:int}"
 @using CarSharing_Client.Components
 @using CarSharing_Client.Data
 @using CarSharing_Client.Models
 
-@inject IVehicleService _vehicleWebService
+@inject IListingService _listingWebService
 @inject NavigationManager _navigationManager
 
-<h3>Edit Vehicle</h3>
+<h3>Edit Listing</h3>
 
-<VehicleForm Vehicle="_vehicleToEdit" SubmitHandler="UpdateVehicle" CancelHandler="Cancel" ErrorMessage="@_errorMessage"/>
-
+<ListingForm Listing="@_listingToEdit" SubmitHandler="AddListing" CancelHandler="Cancel" ErrorMessage="@_errorMessage"/>
 
 @code {
     [Parameter]
-    public string LicenseNo { get; set; }
-
-    private Vehicle _vehicleToEdit = new();
+    public int Id { get; set; }
+    private Listing _listingToEdit = new();
     private string _errorMessage;
-
+    
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            _vehicleToEdit = await _vehicleWebService.GetVehicleAsync(LicenseNo);
+            _listingToEdit = await _listingWebService.GetListingById(Id);
             _errorMessage = "";
         }
         catch (Exception e)
@@ -32,9 +29,9 @@
         }
     }
 
-    private async Task UpdateVehicle()
+    private async Task AddListing()
     {
-        await _vehicleWebService.UpdateVehicleAsync(_vehicleToEdit);
+        await _listingWebService.UpdateListingAsync(_listingToEdit);
         _navigationManager.NavigateTo("/view-vehicles");
     }
 

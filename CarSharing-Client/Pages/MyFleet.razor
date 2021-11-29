@@ -3,7 +3,9 @@
 @using CarSharing_Client.Data
 @using Entity.ModelData
 @using CarSharing_Client.Authentication
+
 @inject IVehicleService _vehicleService;
+@inject IListingService _listingService
 @inject NavigationManager _navigationManager
 @inject AuthenticationStateProvider _authenticationStateProvider
 
@@ -34,33 +36,30 @@
                         </div>
                         <div class="card-body">
 
-                            <div  class="d-none" >
-                                @GetVehicleListing(vehicle);
-                            </div>
                             
-                            @if ( _listing!=null)
+                            @if ( _listings.ContainsKey(vehicle.LicenseNo))
                             {
-                                
-                                <h4> Vehicle is listed</h4>
-
+                                Listing listing = _listings[vehicle.LicenseNo];
+                                    
+                                <h4><span class="oi oi-circle-check" data-width="30" data-height="30"></span> Vehicle is listed</h4>
                                 <p class="card-text">
-                                    <span class="font-weight-light">From</span> @_listing.DateFrom
+                                    <span class="font-weight-light">From</span> @listing.DateFrom
                                 </p>
 
                                 <p class="card-text">
-                                    <span class="font-weight-light">To:</span> @_listing.DateTo
+                                    <span class="font-weight-light">To:</span> @listing.DateTo
                                 </p>
 
                                 <p class="card-text">
-                                    <span class="font-weight-light">Daily price:</span> @_listing.Price
+                                    <span class="font-weight-light">Daily price:</span> @listing.Price
                                 </p>
 
                                 <p class="card-text">
-                                    <span class="font-weight-light">Location: </span> @_listing.Location
+                                    <span class="font-weight-light">Location: </span> @listing.Location
                                 </p>
 
                                 <p class="card-text">
-                                    <span class="font-weight-light">Vehicle was listed at: </span> @_listing.ListedDate
+                                    <span class="font-weight-light">Vehicle was listed at: </span> @listing.ListedDate
                                 </p>
 
                                
@@ -108,6 +107,18 @@
                                 <Button @onclick="@( () => _navigationManager.NavigateTo($"/vehicle-edit/{vehicle.LicenseNo}"))" class="btn btn-dark">Open vehicle</Button>
                             </p>
                             
+                            @if (_listings.ContainsKey(vehicle.LicenseNo))
+                            {
+                                int listingId = _listings[vehicle.LicenseNo].Id;
+                                
+                                <p class="card-text">
+                                    <Button @onclick="@(() => _navigationManager.NavigateTo($"/listing-edit/{listingId}"))" class="btn btn-dark">Open listing</Button>
+                                </p>
+
+                                <p class="card-text">
+                                    <Button @onclick="@(async () => await _listingService.RemoveListingAsync(listingId))" class="btn btn-dark">Delete listing</Button>
+                                </p>
+                            }
 
                         </div>
                     </div>
@@ -120,37 +131,24 @@
 @code
 {
     private IList<Vehicle> _vehicles = new List<Vehicle>();
+    private readonly Dictionary<string, Listing> _listings = new();
     private Customer _customer;
-    Listing _listing;
-    
-   
-    
+
 
     protected override async Task OnInitializedAsync()
     {
         _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
         _vehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
+        await InitializeListingDict();
     }
 
-
-    private async Task GetVehicleListing(Vehicle vehicle)
+    private async Task InitializeListingDict()
     {
-        //TODO by Tomas delete
-        Listing listing = new()
+        foreach (var vehicle in _vehicles)
         {
-            DateFrom = DateTime.Now,
-            DateTo = DateTime.Now.AddDays(7),
-            ListedDate = DateTime.Now,
-            Location = "Horsens",
-            Price = 100,
-            Vehicle = vehicle
-        };
-        
-        //TODO by tomas switch the new for data source
-        IList <Listing> vehicleListing = new List<Listing>();
-        //TODO by Tomas delete line below
-        vehicleListing.Add(listing);
-        _listing = vehicleListing.First();
-        
+            Listing listing = await _listingService.GetListingsByVehicleAsync(vehicle.LicenseNo);
+            if(listing != null)
+                _listings.Add(vehicle.LicenseNo,listing);
+        }
     }
 }
