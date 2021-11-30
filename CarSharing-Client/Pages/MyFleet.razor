@@ -37,7 +37,7 @@
                         <div class="card-body">
 
                             
-                            @if ( _listings.ContainsKey(vehicle.LicenseNo))
+                            @if (_listings.ContainsKey(vehicle.LicenseNo))
                             {
                                 Listing listing = _listings[vehicle.LicenseNo];
                                     
@@ -144,11 +144,14 @@
 
     private async Task InitializeListingDict()
     {
-        foreach (var vehicle in _vehicles)
+        List<Task<Listing>> listOfTasks = _vehicles.Select(vehicle => _listingService.GetListingsByVehicleAsync(vehicle.LicenseNo)).ToList();
+        var result = await Task.WhenAll(listOfTasks);
+        foreach (var listing in result)
         {
-            Listing listing = await _listingService.GetListingsByVehicleAsync(vehicle.LicenseNo);
-            if(listing != null)
-                _listings.Add(vehicle.LicenseNo,listing);
+            if (listing != null)
+            {
+                _listings.Add(listing.Vehicle.LicenseNo, listing);
+            }
         }
     }
 }
