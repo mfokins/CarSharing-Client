@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Entity.ModelData
+namespace CarSharing_Client.Models
 {
     public class Account
     {

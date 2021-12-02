@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Entity.ModelData;
 
 namespace CarSharing_Client.Models
 {

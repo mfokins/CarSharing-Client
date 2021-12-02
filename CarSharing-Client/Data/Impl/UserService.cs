@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Entity.ModelData;
+using CarSharing_Client.Models;
 
 namespace CarSharing_Client.Data.Impl
 {

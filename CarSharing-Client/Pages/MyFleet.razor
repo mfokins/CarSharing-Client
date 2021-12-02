@@ -1,7 +1,6 @@
 @page "/view-vehicles"
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
-@using Entity.ModelData
 @using CarSharing_Client.Authentication
 
 @inject IVehicleService _vehicleService;
@@ -133,8 +132,7 @@
     private IList<Vehicle> _vehicles = new List<Vehicle>();
     private readonly Dictionary<string, Listing> _listings = new();
     private Customer _customer;
-
-
+    
     protected override async Task OnInitializedAsync()
     {
         _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
