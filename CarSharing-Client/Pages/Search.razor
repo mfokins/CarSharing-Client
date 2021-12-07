@@ -1,7 +1,6 @@
 ﻿@page "/search"
 @using Models
 @using Data
-
 @inject NavigationManager _navigationManager
 @inject IListingService _listingService
 
@@ -90,6 +89,10 @@
                             </p>
                         </div>
                         <div class="card-footer">
+                            <p class="card-text">
+                                <Button @onclick="@(() => _navigationManager.NavigateTo("/create-lease/" + listing.Id+ _params.DateFrom+ _params.DateTo))" class="btn btn-dark">Open listing</Button>
+                            </p>
+                            
                         </div>
                     </div>
                 </div>
