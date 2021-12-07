@@ -35,18 +35,21 @@
                         </div>
                         <div class="card-body">
 
-                            
                             @if (_listings.ContainsKey(vehicle.LicenseNo))
                             {
                                 Listing listing = _listings[vehicle.LicenseNo];
-                                    
+
                                 <h4><span class="oi oi-circle-check" data-width="30" data-height="30"></span> Vehicle is listed</h4>
                                 <p class="card-text">
-                                    <span class="font-weight-light">From</span> @listing.DateFrom
+                                    <span class="font-weight-light">From</span> @listing.DateFrom.ToString(DateTimeFormat)
                                 </p>
 
                                 <p class="card-text">
-                                    <span class="font-weight-light">To:</span> @listing.DateTo
+                                    <span class="font-weight-light">To:</span>
+                                    @if (listing.DateTo != null)
+                                    {
+                                        @listing.DateTo.Value.ToString(DateTimeFormat)
+                                    }
                                 </p>
 
                                 <p class="card-text">
@@ -58,40 +61,15 @@
                                 </p>
 
                                 <p class="card-text">
-                                    <span class="font-weight-light">Vehicle was listed at: </span> @listing.ListedDate
+                                    <span class="font-weight-light">Vehicle was listed at: </span> @listing.ListedDate.ToString(DateTimeFormat)
                                 </p>
-
-                               
                             }
                             else
                             {
-                                <h4>Vehicle is not listed</h4>
+                                <h4><span class="oi oi-circle-x" data-width="30" data-height="30"></span> Vehicle is not listed</h4>
                             }
-                            
-                            
-                            
-                            
-                            @*<p class="card-text">
-                                <span class="font-weight-light">Mileage:</span> @vehicle.Mileage
-                            </p>
-                            <p class="card-text">
-                                <span class="font-weight-light">Transmition:</span> @vehicle.Transmission
-                            </p>
-
-                            <p class="card-text">
-                                <span class="font-weight-light">Seats:</span> @vehicle.Seats
-                            </p>
-
-                            <p class="card-text">
-                                <span class="font-weight-light">Type:</span> @vehicle.Type
-                            </p>
-
-                            <p class="card-text">
-                                <span class="font-weight-light">Manufacture year:</span> @vehicle.ManufactureYear
-                            </p>*@
-
-
                         </div>
+                        
                         <div class="card-footer">
                             <p class="card-text">
                                 <Button @onclick="@(() => _navigationManager.NavigateTo($"/listing-register/{vehicle.LicenseNo}"))" class="btn btn-dark">Lease vehicle</Button>
@@ -101,15 +79,15 @@
                             <p class="card-text">
                                 <Button @onclick="@(async () => await _vehicleService.RemoveVehicleAsync(vehicle.LicenseNo))" class="btn btn-dark">Delete vehicle</Button>
                             </p>
-                            
+
                             <p class="card-text">
-                                <Button @onclick="@( () => _navigationManager.NavigateTo($"/vehicle-edit/{vehicle.LicenseNo}"))" class="btn btn-dark">Open vehicle</Button>
+                                <Button @onclick="@(() => _navigationManager.NavigateTo($"/vehicle-edit/{vehicle.LicenseNo}"))" class="btn btn-dark">Open vehicle</Button>
                             </p>
-                            
+
                             @if (_listings.ContainsKey(vehicle.LicenseNo))
                             {
                                 int listingId = _listings[vehicle.LicenseNo].Id;
-                                
+
                                 <p class="card-text">
                                     <Button @onclick="@(() => _navigationManager.NavigateTo($"/listing-edit/{listingId}"))" class="btn btn-dark">Open listing</Button>
                                 </p>
@@ -129,10 +107,12 @@
 
 @code
 {
+    private const string DateTimeFormat = "dd/MM/yyyy HH':'mm':'ss";
+
     private IList<Vehicle> _vehicles = new List<Vehicle>();
     private readonly Dictionary<string, Listing> _listings = new();
     private Customer _customer;
-    
+
     protected override async Task OnInitializedAsync()
     {
         _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
