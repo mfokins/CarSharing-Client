@@ -1,0 +1,89 @@
+@page "/view-rentals"
+@using CarSharing_Client.Data
+@using CarSharing_Client.Models
+@using CarSharing_Client.Authentication
+@inject ILeaseService _leaseService
+
+@inject IListingService _listingService
+
+@inject AuthenticationStateProvider _authenticationStateProvider
+
+
+
+<h3>MyRentals</h3>
+
+
+<div class="row p-1">
+    @if (_leases != null)
+    {
+        foreach (var lease in _leases)
+        {
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3 ">
+                <div class="card text-center">
+                    <div class="member-card">
+                        <div class="card-header p-3">
+                            @if (lease.Canceled)
+                            {
+                                <h1>Lease had been canceled</h1>
+                            }
+                            <span class="iconify " data-icon="fluent:vehicle-car-profile-ltr-16-filled" data-width="30" data-height="30"></span>
+                            <h4>@lease.Listing.Vehicle.Brand @lease.Listing.Vehicle.Model </h4>
+                            <p>
+                                <strong>Licence number: @lease.Listing.Vehicle.LicenseNo</strong>
+                            </p>
+
+                        </div>
+                        <div class="card-body">
+                            
+                                <h4><span class="oi oi-circle-check" data-width="30" data-height="30"></span> Vehicle is rented</h4>
+                                <p class="card-text">
+                                    <span class="font-weight-light">From</span> @lease.LeasedFrom
+                                </p>
+
+                                <p class="card-text">
+                                    <span class="font-weight-light">To:</span> @lease.LeasedTo
+                                </p>
+
+                            <p class="card-text">
+                                <span class="font-weight-light">Daily price:</span> @lease.Listing.Price
+                            </p>
+                            
+                            <p class="card-text">
+                                <span class="font-weight-light">Total trip price: </span>  @(((lease.LeasedTo -lease.LeasedFrom ).Days)* lease.Listing.Price)
+                            </p>
+                            
+                            <p class="card-text">
+                                <Button  @onclick="@(async () => await _leaseService.CancelLeaseAsync(lease.Id))" class="btn btn-dark">Cancel </Button>
+                            </p>
+                            
+                            
+                            
+                        </div>
+                       
+                            
+
+                        </div>
+                    </div>
+                </div>
+            
+        }
+    }
+</div>
+
+
+@code {
+    
+   private IList<Lease> _leases;
+    private Customer _customer;
+   
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
+        
+      
+        _leases = await _leaseService.GetLeasesByCustomerCpr(_customer.Cpr);
+    }
+    
+}

@@ -13,7 +13,7 @@ namespace CarSharing_Client.Data.Impl
     public class ListingWebService : IListingService
         //10.154.212.52
     {
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "http://10.154.212.114:8080";
         private readonly HttpClient _client;
 
         public ListingWebService()
@@ -55,9 +55,11 @@ namespace CarSharing_Client.Data.Impl
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 Converters = {new DateTimeConverter()}
             });
+            
             HttpContent content = new StringContent(listingAsJson,
                 Encoding.UTF8,
                 "application/json");
+            
             await _client.PatchAsync($"{Uri}/listings/{listing.Id}", content);
         }
 

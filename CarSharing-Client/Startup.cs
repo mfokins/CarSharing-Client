@@ -30,6 +30,7 @@ namespace CarSharing_Client
             services.AddScoped<IVehicleService, VehicleWebService>();
             services.AddScoped<IListingService, ListingWebService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ILeaseService, LeaseWebService>();
             services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
             services.AddAuthorization(option =>
