@@ -1,49 +1,126 @@
-@page "/create-lease/{listingId:int}/{DateFrom:datetime}/{DateTo:datetime}"
-<h3>CreateLease</h3>
-
-<EditForm>
- <div class="form-row">
-        <div class="form-group col-md-5">
-            <label>Date from </label>
-            <p> class="form-control" placeholder="@DateTime.UtcNow" </p>
-        </div>
-        <div class="form-group col-md-5">
-            <label >Date to</label>
-           
-        </div>
-    </div>
-
-    <div class="form-row">
-        <div class="form-group col-md-5">
-            <label >Price</label>
-          
-        </div>
-
-        <div class="form-group col-md-5">
-            <label >Location</label>
-           
-        </div>
-
-    </div>
-
-    <div class="col-4 ml-2 mt-4">
-        <p class="actions">
-            <button class="btn btn-outline-dark " type="submit">Lease vehicle</button>
-            <button class="btn btn-danger" type="button" >Cancel</button>
-        </p>
-    </div>
-</EditForm>
+@page "/create-lease/"
+@using Microsoft.AspNetCore.WebUtilities
+@using CarSharing_Client.Models
+@using CarSharing_Client.Data
+@using CarSharing_Client.Authentication
+@inject NavigationManager NavMgr
+@inject IListingService _listingService
+@inject ILeaseService _leaseService
+@inject AuthenticationStateProvider _authenticationStateProvider
 
 
 
-
-@code
+@if (_listing!=null)
 {
+    <div class="form-row">
+            <div class="form-group col-md-5">
+                <label>Date from </label>
+                <br>
+                <h3>@DateFrom</h3>
+              
+            </div>
+            <div class="form-group col-md-5">
+                <label >Date to</label>
+                 <br>
+                <h3>@DateTo</h3>
+               
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-5">
+                <label >Daily price</label>
+                 <br>
+                 <h3>@_listing.Price</h3>
+                  <label >Total trip price</label>
+                 <h3>@(((DateTo -DateFrom ).Days)* _listing.Price)</h3>
+                 
+                
+            </div>
+
+            <div class="form-group col-md-5">
+                <label >Location</label>
+                 <br>
+                 <h3>@_listing.Location</h3>
+                 
+               
+            </div>
+
+        </div>
+
+        <div class="col-4 ml-2 mt-4">
+            <p class="actions">
+                <button @onclick="AddLease" class="btn btn-outline-dark ">Lease vehicle</button>
+                <button  @onclick="@( () => NavMgr.NavigateTo("/search/"))" class="btn btn-danger" >Cancel</button>
+            </p>
+        </div>
+   
+}
+
+
+
+
+@code {
     [Parameter]
-    public string listingId { get; set; }
+    public int listingId { get; set; }
     [Parameter]
     public DateTime DateFrom { get; set; }
     [Parameter]
     public DateTime DateTo { get; set; }
 
-}
+    private Listing _listing;
+    private Customer _customer;
+    
+
+    Uri uri;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        GetDataFromUrl();
+
+        _listing = await _listingService.GetListingById(listingId);
+        _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
+    }
+
+    public void GetDataFromUrl()
+    {
+        uri = NavMgr.ToAbsoluteUri(NavMgr.Uri);
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("listingId", out var lId))
+        {
+            listingId = int.Parse(lId);
+        }
+        
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("DateFrom", out var dFrom))
+        {
+            DateFrom = DateTime.Parse(dFrom);
+        }
+        
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("DateTo", out var dTo))
+        {
+            DateTo = DateTime.Parse(dTo);
+        }
+    }
+
+    private async Task AddLease()
+    {
+        Lease lease = new Lease()
+        {
+            LeasedFrom = DateFrom,
+            LeasedTo = DateTo,
+            Customer = _customer,
+            Listing = _listing
+
+        };
+
+        await _leaseService.AddLeaseAsync(lease);
+        NavMgr.NavigateTo("/view-rentals/");
+
+    }
+
+    }
+   
+
+    
+
+
