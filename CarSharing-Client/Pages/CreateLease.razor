@@ -1,10 +1,14 @@
-@page "/create-lease/{listingId:int}/{DateFrom:datetime}/{DateTo:datetime}"
+@page "/create-lease/"
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject NavigationManager NavMgr
+
 <h3>CreateLease</h3>
 
-<EditForm>
+
  <div class="form-row">
         <div class="form-group col-md-5">
-            <label>Date from </label>
+            <label>Date from: @DateFrom </label>
             <p> class="form-control" placeholder="@DateTime.UtcNow" </p>
         </div>
         <div class="form-group col-md-5">
@@ -32,7 +36,7 @@
             <button class="btn btn-danger" type="button" >Cancel</button>
         </p>
     </div>
-</EditForm>
+
 
 
 
@@ -40,10 +44,35 @@
 @code
 {
     [Parameter]
-    public string listingId { get; set; }
+    public int listingId { get; set; }
     [Parameter]
     public DateTime DateFrom { get; set; }
     [Parameter]
     public DateTime DateTo { get; set; }
+
+    Uri uri;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        uri = NavMgr.ToAbsoluteUri(NavMgr.Uri);
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("listingId", out var lId))
+        {
+            listingId = int.Parse(lId);
+        }
+        
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("DateFrom", out var dFrom))
+        {
+            DateFrom = DateTime.Parse(dFrom);
+        }
+        
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("DateTo", out var dTo))
+        {
+            DateTo = DateTime.Parse(dTo);
+        }
+    }
+    
+}
+
 
 }

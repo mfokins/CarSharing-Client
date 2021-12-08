@@ -2,11 +2,13 @@
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
 @using CarSharing_Client.Authentication
+@using Microsoft.Extensions.Caching.Memory
 
 @inject IVehicleService _vehicleService;
 @inject IListingService _listingService
 @inject NavigationManager _navigationManager
 @inject AuthenticationStateProvider _authenticationStateProvider
+@inject IMemoryCache _memoryCache
 
 @if (_customer != null)
 {
@@ -93,7 +95,7 @@
                                 </p>
 
                                 <p class="card-text">
-                                    <Button @onclick="@(async () => await _listingService.RemoveListingAsync(listingId))" class="btn btn-dark">Delete listing</Button>
+                                    <Button @onclick="@(async () => { await _listingService.RemoveListingAsync(listingId); await RemoveCache();})" class="btn btn-dark">Delete listing</Button>
                                 </p>
                             }
 
@@ -116,7 +118,19 @@
     protected override async Task OnInitializedAsync()
     {
         _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
-        _vehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
+        
+        if (!_memoryCache.TryGetValue(_customer.Cpr, out IList<Vehicle> cacheVehicles))
+        {
+            Console.WriteLine("Updating fleet cache");
+            cacheVehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
+                    
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromSeconds(30));
+
+            _memoryCache.Set(_customer.Cpr, cacheVehicles, cacheEntryOptions);
+        }
+
+        _vehicles = cacheVehicles;
         await InitializeListingDict();
     }
 
@@ -131,5 +145,10 @@
                 _listings.Add(listing.Vehicle.LicenseNo, listing);
             }
         }
+    }
+
+    private async Task RemoveCache()
+    {
+        _memoryCache.Remove(_customer.Cpr);
     }
 }

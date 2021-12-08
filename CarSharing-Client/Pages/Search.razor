@@ -1,8 +1,10 @@
 ﻿@page "/search"
 @using Models
 @using Data
+@using Microsoft.Extensions.Caching.Memory
 @inject NavigationManager _navigationManager
 @inject IListingService _listingService
+@inject IMemoryCache _memoryCache
 
 <h2 class="p-2">Search a car</h2>
 
@@ -90,9 +92,9 @@
                         </div>
                         <div class="card-footer">
                             <p class="card-text">
-                                <Button @onclick="@(() => _navigationManager.NavigateTo("/create-lease/" + listing.Id+ _params.DateFrom+ _params.DateTo))" class="btn btn-dark">Open listing</Button>
+                                <Button @onclick="@(() => _navigationManager.NavigateTo($"/create-lease/?listingId={listing.Id}&DateFrom={_params.DateFrom}&DateTo={_params.DateTo}"))" class="btn btn-dark">Open listing</Button>
                             </p>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -102,13 +104,17 @@
 }
 
 @code {
+    
+
     private string _errorMessage = "";
+
+    private string _queryString;
 
     private readonly SearchParams _params = new()
     {
         DateFrom = DateTime.UtcNow
     };
-
+    
     private IList<Listing> _listings;
 
     private async Task SearchForListing()
@@ -120,12 +126,26 @@
                 _errorMessage = "The end date cannot be before the start date";
                 return;
             }
-            
+
             _errorMessage = "";
             
             try
             {
-                _listings = await _listingService.GetListingsAsync(_params.Location, _params.DateFrom.Value, _params.DateTo.Value);
+                _queryString = $"{_params.Location},{_params.DateFrom.Value.Date},{_params.DateTo.Value.Date}";
+                Console.WriteLine(_queryString);
+                
+                if (!_memoryCache.TryGetValue(_queryString, out IList<Listing> cacheListings))
+                {
+                    Console.WriteLine("Updating search cache");
+                    cacheListings = await _listingService.GetListingsAsync(_params.Location, _params.DateFrom.Value, _params.DateTo.Value);
+                    
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(30));
+
+                    _memoryCache.Set(_queryString, cacheListings, cacheEntryOptions);
+                }
+
+                _listings = cacheListings;
             }
             catch (Exception e)
             {
