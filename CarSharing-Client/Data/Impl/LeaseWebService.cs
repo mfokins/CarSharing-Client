@@ -14,7 +14,7 @@ namespace CarSharing_Client.Data.Impl
     public class LeaseWebService : ILeaseService
     {
         private readonly HttpClient _client;
-        private const string Uri = "http://10.154.212.114:8080";
+        private const string Uri = "http://10.154.212.92:8080";
        
 
         public LeaseWebService()
@@ -35,6 +35,7 @@ namespace CarSharing_Client.Data.Impl
                 "application/json"
             );
 
+           
             HttpResponseMessage responseMessage = await _client.PostAsync(Uri + "/leases", content);
             if (!responseMessage.IsSuccessStatusCode)
             {

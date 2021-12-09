@@ -3,6 +3,7 @@
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
 @using CarSharing_Client.Authentication
+@using System.Text.Json
 @inject NavigationManager NavMgr
 @inject IListingService _listingService
 @inject ILeaseService _leaseService
@@ -48,12 +49,19 @@
 
         </div>
 
-        <div class="col-4 ml-2 mt-4">
-            <p class="actions">
-                <button @onclick="AddLease" class="btn btn-outline-dark ">Lease vehicle</button>
-                <button  @onclick="@( () => NavMgr.NavigateTo("/search/"))" class="btn btn-danger" >Cancel</button>
-            </p>
+    <div class="col-4 ml-2 mt-4">
+        <p class="actions">
+            <button @onclick="AddLease" class="btn btn-outline-dark ">Lease vehicle</button>
+            <button  @onclick="@( () => NavMgr.NavigateTo("/search/"))" class="btn btn-danger" >Cancel</button>
+        </p>
+    </div>
+    
+    @if (_errorMessage != "")
+    {
+        <div class="alert alert-danger" role="alert">
+            @_errorMessage
         </div>
+    }
    
 }
 
@@ -70,12 +78,15 @@
 
     private Listing _listing;
     private Customer _customer;
+
+    private string _errorMessage;
     
 
     Uri uri;
     
     protected override async Task OnInitializedAsync()
     {
+        _errorMessage = "";
         GetDataFromUrl();
 
         _listing = await _listingService.GetListingById(listingId);
@@ -112,9 +123,19 @@
             Listing = _listing
 
         };
-
-        await _leaseService.AddLeaseAsync(lease);
-        NavMgr.NavigateTo("/view-rentals/");
+        
+        try
+        {
+            await _leaseService.AddLeaseAsync(lease);
+            NavMgr.NavigateTo("/view-rentals/");
+        }
+        catch (Exception e)
+        {
+            _errorMessage = e.Message;
+        }
+      
+        
+      
 
     }
 
