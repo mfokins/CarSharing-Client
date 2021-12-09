@@ -3,7 +3,7 @@
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
 @using CarSharing_Client.Authentication
-@inject NavigationManager NavMgr
+@inject NavigationManager _navMgr
 @inject IListingService _listingService
 @inject ILeaseService _leaseService
 @inject AuthenticationStateProvider _authenticationStateProvider
@@ -51,7 +51,7 @@
     <div class="col-4 ml-2 mt-4">
         <p class="actions">
             <button @onclick="AddLease" class="btn btn-outline-dark ">Lease vehicle</button>
-            <button  @onclick="@( () => NavMgr.NavigateTo("/search/"))" class="btn btn-danger" >Cancel</button>
+            <button  @onclick="@( () => _navMgr.NavigateTo("/search/"))" class="btn btn-danger" >Cancel</button>
         </p>
     </div>
     
@@ -69,7 +69,7 @@
 
 @code {
     [Parameter]
-    public int listingId { get; set; }
+    public int ListingId { get; set; }
     [Parameter]
     public DateTime DateFrom { get; set; }
     [Parameter]
@@ -79,34 +79,32 @@
     private Customer _customer;
 
     private string _errorMessage;
-    
-
-    Uri uri;
+    private Uri _uri;
     
     protected override async Task OnInitializedAsync()
     {
         _errorMessage = "";
         GetDataFromUrl();
 
-        _listing = await _listingService.GetListingById(listingId);
+        _listing = await _listingService.GetListingById(ListingId);
         _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
     }
 
-    public void GetDataFromUrl()
+    private void GetDataFromUrl()
     {
-        uri = NavMgr.ToAbsoluteUri(NavMgr.Uri);
+        _uri = _navMgr.ToAbsoluteUri(_navMgr.Uri);
 
-        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("listingId", out var lId))
+        if (QueryHelpers.ParseQuery(_uri.Query).TryGetValue("listingId", out var lId))
         {
-            listingId = int.Parse(lId);
+            ListingId = int.Parse(lId);
         }
         
-        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("DateFrom", out var dFrom))
+        if (QueryHelpers.ParseQuery(_uri.Query).TryGetValue("DateFrom", out var dFrom))
         {
             DateFrom = DateTime.Parse(dFrom);
         }
         
-        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("DateTo", out var dTo))
+        if (QueryHelpers.ParseQuery(_uri.Query).TryGetValue("DateTo", out var dTo))
         {
             DateTo = DateTime.Parse(dTo);
         }
@@ -126,7 +124,7 @@
         try
         {
             await _leaseService.AddLeaseAsync(lease);
-            NavMgr.NavigateTo("/view-rentals/");
+            _navMgr.NavigateTo("/view-rentals/");
         }
         catch (Exception e)
         {

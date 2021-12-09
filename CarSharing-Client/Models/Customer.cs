@@ -4,7 +4,7 @@ namespace CarSharing_Client.Models
 {
     public class Customer
     {
-        [Key]
+        [Required]
         public string Cpr { get; set; }
         [Required]
         [StringLength(255, MinimumLength = 3)]
