@@ -9,7 +9,7 @@ namespace CarSharing_Client.Data.Impl
 {
     public class UserService : IUserService
     {
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "http://10.154.212.92:8080";
         private readonly HttpClient _client;
 
         public UserService()
@@ -38,6 +38,7 @@ namespace CarSharing_Client.Data.Impl
             );
 
             var responseMessage = await _client.PostAsync($"{Uri}/session", accountAsStringContent);
+
             
             if (!responseMessage.IsSuccessStatusCode)
             {

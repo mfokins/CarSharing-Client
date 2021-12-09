@@ -3,9 +3,11 @@
 @using CarSharing_Client.Data
 @using CarSharing_Client.Components
 @using CarSharing_Client.Authentication
+@using Microsoft.Extensions.Caching.Memory
 @inject IVehicleService _vehicleService;
 @inject NavigationManager _navigationManager; 
 @inject AuthenticationStateProvider _authenticationStateProvider
+@inject IMemoryCache _memoryCache
 
 <h3>Register a new vehicle to your fleet</h3>
 
@@ -33,6 +35,9 @@
             _errorMessage = "";
             _car.Owner = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
             await _vehicleService.AddVehicleAsync(_car);
+            
+            _memoryCache.TryGetValue(_car.Owner.Cpr, out IList<Vehicle> cacheVehicles);
+            cacheVehicles.Add(_car);
         
             _navigationManager.NavigateTo("/view-vehicles");
         }

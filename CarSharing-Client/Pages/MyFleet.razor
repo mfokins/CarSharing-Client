@@ -79,7 +79,7 @@
                             </p>
 
                             <p class="card-text">
-                                <Button @onclick="@(async () => await _vehicleService.RemoveVehicleAsync(vehicle.LicenseNo))" class="btn btn-dark">Delete vehicle</Button>
+                                <Button @onclick="@(async () => await RemoveVehicle(vehicle))" class="btn btn-dark">Delete vehicle</Button>
                             </p>
 
                             <p class="card-text">
@@ -88,14 +88,14 @@
 
                             @if (_listings.ContainsKey(vehicle.LicenseNo))
                             {
-                                int listingId = _listings[vehicle.LicenseNo].Id;
+                                Listing listing = _listings[vehicle.LicenseNo];
 
                                 <p class="card-text">
-                                    <Button @onclick="@(() => _navigationManager.NavigateTo($"/listing-edit/{listingId}"))" class="btn btn-dark">Open listing</Button>
+                                    <Button @onclick="@(() => _navigationManager.NavigateTo($"/listing-edit/{listing.Id}"))" class="btn btn-dark">Open listing</Button>
                                 </p>
 
                                 <p class="card-text">
-                                    <Button @onclick="@(async () => { await _listingService.RemoveListingAsync(listingId); await RemoveCache();})" class="btn btn-dark">Delete listing</Button>
+                                    <Button @onclick="@(async () => { await RemoveListing(listing); })" class="btn btn-dark">Delete listing</Button>
                                 </p>
                             }
 
@@ -121,11 +121,11 @@
         
         if (!_memoryCache.TryGetValue(_customer.Cpr, out IList<Vehicle> cacheVehicles))
         {
-            Console.WriteLine("Updating fleet cache");
+            Console.WriteLine("Updating fleet cache...");
             cacheVehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
                     
             var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromSeconds(30));
+                .SetAbsoluteExpiration(TimeSpan.FromSeconds(60 * 30));
 
             _memoryCache.Set(_customer.Cpr, cacheVehicles, cacheEntryOptions);
         }
@@ -147,8 +147,15 @@
         }
     }
 
-    private async Task RemoveCache()
+    private async Task RemoveVehicle(Vehicle vehicle)
     {
-        _memoryCache.Remove(_customer.Cpr);
+        await _vehicleService.RemoveVehicleAsync(vehicle.LicenseNo);
+        _vehicles.Remove(vehicle);
+    }
+    
+    private async Task RemoveListing(Listing listing)
+    {
+        await _listingService.RemoveListingAsync(listing.Id);
+        _listings.Remove(listing.Vehicle.LicenseNo);
     }
 }
