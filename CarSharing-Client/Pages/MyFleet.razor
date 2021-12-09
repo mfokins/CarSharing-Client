@@ -2,11 +2,13 @@
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
 @using CarSharing_Client.Authentication
+@using Microsoft.Extensions.Caching.Memory
 
 @inject IVehicleService _vehicleService;
 @inject IListingService _listingService
 @inject NavigationManager _navigationManager
 @inject AuthenticationStateProvider _authenticationStateProvider
+@inject IMemoryCache _memoryCache
 
 @if (_customer != null)
 {
@@ -35,18 +37,21 @@
                         </div>
                         <div class="card-body">
 
-                            
                             @if (_listings.ContainsKey(vehicle.LicenseNo))
                             {
                                 Listing listing = _listings[vehicle.LicenseNo];
-                                    
+
                                 <h4><span class="oi oi-circle-check" data-width="30" data-height="30"></span> Vehicle is listed</h4>
                                 <p class="card-text">
-                                    <span class="font-weight-light">From</span> @listing.DateFrom
+                                    <span class="font-weight-light">From</span> @listing.DateFrom.ToString(DateTimeFormat)
                                 </p>
 
                                 <p class="card-text">
-                                    <span class="font-weight-light">To:</span> @listing.DateTo
+                                    <span class="font-weight-light">To:</span>
+                                    @if (listing.DateTo != null)
+                                    {
+                                        @listing.DateTo.Value.ToString(DateTimeFormat)
+                                    }
                                 </p>
 
                                 <p class="card-text">
@@ -58,40 +63,15 @@
                                 </p>
 
                                 <p class="card-text">
-                                    <span class="font-weight-light">Vehicle was listed at: </span> @listing.ListedDate
+                                    <span class="font-weight-light">Vehicle was listed at: </span> @listing.ListedDate.ToString(DateTimeFormat)
                                 </p>
-
-                               
                             }
                             else
                             {
-                                <h4>Vehicle is not listed</h4>
+                                <h4><span class="oi oi-circle-x" data-width="30" data-height="30"></span> Vehicle is not listed</h4>
                             }
-                            
-                            
-                            
-                            
-                            @*<p class="card-text">
-                                <span class="font-weight-light">Mileage:</span> @vehicle.Mileage
-                            </p>
-                            <p class="card-text">
-                                <span class="font-weight-light">Transmition:</span> @vehicle.Transmission
-                            </p>
-
-                            <p class="card-text">
-                                <span class="font-weight-light">Seats:</span> @vehicle.Seats
-                            </p>
-
-                            <p class="card-text">
-                                <span class="font-weight-light">Type:</span> @vehicle.Type
-                            </p>
-
-                            <p class="card-text">
-                                <span class="font-weight-light">Manufacture year:</span> @vehicle.ManufactureYear
-                            </p>*@
-
-
                         </div>
+                        
                         <div class="card-footer">
                             <p class="card-text">
                                 <Button @onclick="@(() => _navigationManager.NavigateTo($"/listing-register/{vehicle.LicenseNo}"))" class="btn btn-dark">Lease vehicle</Button>
@@ -99,23 +79,23 @@
                             </p>
 
                             <p class="card-text">
-                                <Button @onclick="@(async () => await _vehicleService.RemoveVehicleAsync(vehicle.LicenseNo))" class="btn btn-dark">Delete vehicle</Button>
+                                <Button @onclick="@(async () => await RemoveVehicle(vehicle))" class="btn btn-dark">Delete vehicle</Button>
                             </p>
-                            
+
                             <p class="card-text">
-                                <Button @onclick="@( () => _navigationManager.NavigateTo($"/vehicle-edit/{vehicle.LicenseNo}"))" class="btn btn-dark">Open vehicle</Button>
+                                <Button @onclick="@(() => _navigationManager.NavigateTo($"/vehicle-edit/{vehicle.LicenseNo}"))" class="btn btn-dark">Open vehicle</Button>
                             </p>
-                            
+
                             @if (_listings.ContainsKey(vehicle.LicenseNo))
                             {
-                                int listingId = _listings[vehicle.LicenseNo].Id;
-                                
+                                Listing listing = _listings[vehicle.LicenseNo];
+
                                 <p class="card-text">
-                                    <Button @onclick="@(() => _navigationManager.NavigateTo($"/listing-edit/{listingId}"))" class="btn btn-dark">Open listing</Button>
+                                    <Button @onclick="@(() => _navigationManager.NavigateTo($"/listing-edit/{listing.Id}"))" class="btn btn-dark">Open listing</Button>
                                 </p>
 
                                 <p class="card-text">
-                                    <Button @onclick="@(async () => await _listingService.RemoveListingAsync(listingId))" class="btn btn-dark">Delete listing</Button>
+                                    <Button @onclick="@(async () => { await RemoveListing(listing); })" class="btn btn-dark">Delete listing</Button>
                                 </p>
                             }
 
@@ -129,14 +109,28 @@
 
 @code
 {
+    private const string DateTimeFormat = "dd/MM/yyyy HH':'mm':'ss";
+
     private IList<Vehicle> _vehicles = new List<Vehicle>();
     private readonly Dictionary<string, Listing> _listings = new();
     private Customer _customer;
-    
+
     protected override async Task OnInitializedAsync()
     {
         _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
-        _vehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
+        
+        if (!_memoryCache.TryGetValue(_customer.Cpr, out IList<Vehicle> cacheVehicles))
+        {
+            Console.WriteLine("Updating fleet cache...");
+            cacheVehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
+                    
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromSeconds(60 * 30));
+
+            _memoryCache.Set(_customer.Cpr, cacheVehicles, cacheEntryOptions);
+        }
+
+        _vehicles = cacheVehicles;
         await InitializeListingDict();
     }
 
@@ -151,5 +145,17 @@
                 _listings.Add(listing.Vehicle.LicenseNo, listing);
             }
         }
+    }
+
+    private async Task RemoveVehicle(Vehicle vehicle)
+    {
+        await _vehicleService.RemoveVehicleAsync(vehicle.LicenseNo);
+        _vehicles.Remove(vehicle);
+    }
+    
+    private async Task RemoveListing(Listing listing)
+    {
+        await _listingService.RemoveListingAsync(listing.Id);
+        _listings.Remove(listing.Vehicle.LicenseNo);
     }
 }

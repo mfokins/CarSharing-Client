@@ -1,0 +1,144 @@
+@page "/create-lease/"
+@using Microsoft.AspNetCore.WebUtilities
+@using CarSharing_Client.Models
+@using CarSharing_Client.Data
+@using CarSharing_Client.Authentication
+@inject NavigationManager _navMgr
+@inject IListingService _listingService
+@inject ILeaseService _leaseService
+@inject AuthenticationStateProvider _authenticationStateProvider
+
+
+
+@if (_listing!=null)
+{
+    <div class="form-row">
+            <div class="form-group col-md-5">
+                <label>Date from </label>
+                <br>
+                <h3>@DateFrom</h3>
+              
+            </div>
+            <div class="form-group col-md-5">
+                <label >Date to</label>
+                 <br>
+                <h3>@DateTo</h3>
+               
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-5">
+                <label >Daily price</label>
+                 <br>
+                 <h3>@_listing.Price</h3>
+                  <label >Total trip price</label>
+                 <h3>@(((DateTo -DateFrom ).Days)* _listing.Price)</h3>
+                 
+                
+            </div>
+
+            <div class="form-group col-md-5">
+                <label >Location</label>
+                 <br>
+                 <h3>@_listing.Location</h3>
+                 
+               
+            </div>
+
+        </div>
+
+    <div class="col-4 ml-2 mt-4">
+        <p class="actions">
+            <button @onclick="AddLease" class="btn btn-outline-dark ">Lease vehicle</button>
+            <button  @onclick="@( () => _navMgr.NavigateTo("/search/"))" class="btn btn-danger" >Cancel</button>
+        </p>
+    </div>
+    
+    @if (_errorMessage != "")
+    {
+        <div class="alert alert-danger" role="alert">
+            @_errorMessage
+        </div>
+    }
+   
+}
+
+
+
+
+@code {
+    [Parameter]
+    public int ListingId { get; set; }
+    [Parameter]
+    public DateTime DateFrom { get; set; }
+    [Parameter]
+    public DateTime DateTo { get; set; }
+
+    private Listing _listing;
+    private Customer _customer;
+
+    private string _errorMessage;
+    private Uri _uri;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _errorMessage = "";
+        GetDataFromUrl();
+
+        _listing = await _listingService.GetListingById(ListingId);
+        _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
+    }
+
+    private void GetDataFromUrl()
+    {
+        _uri = _navMgr.ToAbsoluteUri(_navMgr.Uri);
+
+        if (QueryHelpers.ParseQuery(_uri.Query).TryGetValue("listingId", out var lId))
+        {
+            ListingId = int.Parse(lId);
+        }
+        
+        if (QueryHelpers.ParseQuery(_uri.Query).TryGetValue("DateFrom", out var dFrom))
+        {
+            DateFrom = DateTime.Parse(dFrom);
+        }
+        
+        if (QueryHelpers.ParseQuery(_uri.Query).TryGetValue("DateTo", out var dTo))
+        {
+            DateTo = DateTime.Parse(dTo);
+        }
+    }
+
+    private async Task AddLease()
+    {
+        Lease lease = new Lease()
+        {
+            LeasedFrom = DateFrom,
+            LeasedTo = DateTo,
+            Customer = _customer,
+            Listing = _listing
+
+        };
+        
+        try
+        {
+            await _leaseService.AddLeaseAsync(lease);
+            _navMgr.NavigateTo("/view-rentals/");
+        }
+        catch (Exception e)
+        {
+            _errorMessage = e.Message;
+        }
+      
+        
+      
+
+    }
+
+    }
+   
+
+    
+
+

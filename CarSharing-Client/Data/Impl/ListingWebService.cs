@@ -13,7 +13,7 @@ namespace CarSharing_Client.Data.Impl
     public class ListingWebService : IListingService
         //10.154.212.52
     {
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "http://10.154.212.92:8080";
         private readonly HttpClient _client;
 
         public ListingWebService()
@@ -36,7 +36,10 @@ namespace CarSharing_Client.Data.Impl
 
             HttpResponseMessage responseMessage = await _client.PostAsync(Uri + "/listings", content);
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+            {
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
+            }
         }
 
         public async Task RemoveListingAsync(int id)
@@ -44,7 +47,8 @@ namespace CarSharing_Client.Data.Impl
             var responseMessage = await _client.DeleteAsync($"{Uri}/listings/{id}");
             if (!responseMessage.IsSuccessStatusCode)
             {
-                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
             }
         }
 
@@ -55,9 +59,11 @@ namespace CarSharing_Client.Data.Impl
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 Converters = {new DateTimeConverter()}
             });
+            
             HttpContent content = new StringContent(listingAsJson,
                 Encoding.UTF8,
                 "application/json");
+            
             await _client.PatchAsync($"{Uri}/listings/{listing.Id}", content);
         }
 
@@ -66,9 +72,14 @@ namespace CarSharing_Client.Data.Impl
             HttpResponseMessage responseMessage =
                 await _client.GetAsync(Uri + $"/listings?location={location}&dateFrom={dateFrom:yyyy-MM-ddTHH':'mm':'ssZ}&dateTo={dateTo:yyyy-MM-ddTHH':'mm':'ssZ}");
             
-
+            
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+            {
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                Console.WriteLine(responseMessage);
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
+            }
+            
 
             string result = await responseMessage.Content.ReadAsStringAsync();
 
@@ -77,6 +88,9 @@ namespace CarSharing_Client.Data.Impl
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 Converters = {new DateTimeConverter()}
             });
+
+            if (listings != null && !listings.Any())
+                throw new Exception("No listings found for this location and dates");
             return listings;
         }
 
@@ -87,9 +101,10 @@ namespace CarSharing_Client.Data.Impl
 
 
             if (!responseMessage.IsSuccessStatusCode)
-                //TODO Handle this exception properly
-                return null;
-                //throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+            {
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
+            }
 
             string result = await responseMessage.Content.ReadAsStringAsync();
 
@@ -112,7 +127,10 @@ namespace CarSharing_Client.Data.Impl
             
 
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+            {
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
+            }
 
             string result = await responseMessage.Content.ReadAsStringAsync();
 

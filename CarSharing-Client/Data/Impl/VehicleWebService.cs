@@ -11,7 +11,7 @@ namespace CarSharing_Client.Data.Impl
 {
     public class VehicleWebService : IVehicleService
     {
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "http://10.154.212.92:8080";
         private readonly HttpClient _client;
 
         public VehicleWebService()
@@ -33,7 +33,10 @@ namespace CarSharing_Client.Data.Impl
 
             HttpResponseMessage responseMessage = await _client.PostAsync(Uri + "/vehicles", content);
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+            {
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
+            }
         }
 
         public async Task RemoveVehicleAsync(string licenseNo)
@@ -41,7 +44,8 @@ namespace CarSharing_Client.Data.Impl
             var responseMessage = await _client.DeleteAsync($"{Uri}/vehicles/{licenseNo}");
             if (!responseMessage.IsSuccessStatusCode)
             {
-                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
             }
         }
 
@@ -62,7 +66,10 @@ namespace CarSharing_Client.Data.Impl
             HttpResponseMessage responseMessage = await _client.GetAsync(Uri + $"/vehicles?licenseNo={licenseNo}");
 
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+            {
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
+            }
 
             string result = await responseMessage.Content.ReadAsStringAsync();
 
@@ -78,7 +85,10 @@ namespace CarSharing_Client.Data.Impl
             HttpResponseMessage responseMessage = await _client.GetAsync(Uri + $"/vehicles/owner?cpr={cpr}");
 
             if (!responseMessage.IsSuccessStatusCode)
-                throw new Exception(responseMessage.Content.ReadAsStringAsync().Result);
+            {
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
+            }
 
             string result = await responseMessage.Content.ReadAsStringAsync();
             

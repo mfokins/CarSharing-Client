@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,7 +31,9 @@ namespace CarSharing_Client
             services.AddScoped<IVehicleService, VehicleWebService>();
             services.AddScoped<IListingService, ListingWebService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ILeaseService, LeaseWebService>();
             services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+            
 
             services.AddAuthorization(option =>
             {

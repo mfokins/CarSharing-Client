@@ -1,0 +1,116 @@
+@page "/View_Lease"
+@*@page "/View_Lease{_vehicle}"*@
+@using CarSharing_Client.Authentication
+@using CarSharing_Client.Data
+@using CarSharing_Client.Models
+@inject AuthenticationStateProvider _authenticationStateProvider
+@inject ILeaseService _leaseService
+@inject IVehicleService _vehicleService
+@inject IListingService _listingService
+<h3>View_Lease</h3>
+
+
+
+
+@if (_leases == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else if (!_leases.Any())
+{
+    <p>
+        <em>No items exist at the moment,lets add some</em>
+    </p>
+}
+else
+    {
+        <table class="table">
+            <thead>
+            
+            
+                    <tr>id</tr>
+                    <tr>Leased From</tr>
+                    <tr>Leased To</tr>
+                    <tr>Vehicle Licence Number</tr>
+                    <tr>Vehicle Brand</tr>
+                    <tr>Vehicle Model</tr>
+                    <tr>Customer CPR</tr>
+                    <tr>Cancel lease</tr>
+
+
+                    <tr>
+                        <AuthorizeView Policy="MustBeLoggedIn">
+                            <th>Cancel lease</th>
+                        </AuthorizeView>
+                    </tr>
+            
+            </thead>
+            
+            <tbody>
+            @foreach (var lease in _leases)
+            {
+                <tr>
+                     
+                   <td>@lease.Id</td>
+                   <td>@lease.LeasedFrom</td>
+                   <td>@lease.LeasedTo</td>
+                   <td>@lease.Listing.Vehicle.LicenseNo</td>
+                   <td>@lease.Listing.Vehicle.Brand</td>
+                   <td>@lease.Listing.Vehicle.Model</td>
+                   <td>@lease.Customer.Cpr</td>
+                   <td>@lease.Canceled</td>
+                    
+                  <AuthorizeView Policy="MustBeLoggedIn">
+                    <td><button @onclick="@(() => CancelLease(lease))">
+                        <i class="oi oi-trash" style="color: red"></i>
+                    </button></td>
+                 </AuthorizeView>
+                   
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+@code {
+    
+    private Customer _owner;
+    IList<Vehicle> _vehicles;
+    IList<Listing> _listings;
+    IList<Lease> _leases;
+    IList<Lease> _leasesToShow;
+
+    [Parameter]
+    public Vehicle _vehicle { get; set; }
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        _leases = new List<Lease>();
+        
+        _owner = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
+        
+        _vehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_owner.Cpr);
+        
+        List<Task<Listing>> tasksListing = _vehicles.Select(vehicle => _listingService.GetListingsByVehicleAsync(vehicle.LicenseNo)).ToList();
+        var resultListings = await Task.WhenAll(tasksListing);
+        
+        _listings = resultListings.ToList();
+    // List<Task<IList<Lease>>> tasksLeases = _listings.Select(listing => _leaseService.GetLeasesByListingAsync(listing)).ToList();
+        foreach (var listing in _listings)
+        {
+            _leases.Concat(await _leaseService.GetLeasesByListingAsync(listing.Id));
+        }
+    }
+    
+    private async Task CancelLease(Lease lease)
+    {
+
+        throw new NotImplementedException();
+    }
+
+    
+    
+}

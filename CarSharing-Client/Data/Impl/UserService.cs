@@ -9,7 +9,7 @@ namespace CarSharing_Client.Data.Impl
 {
     public class UserService : IUserService
     {
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "http://10.154.212.92:8080";
         private readonly HttpClient _client;
 
         public UserService()
@@ -37,12 +37,16 @@ namespace CarSharing_Client.Data.Impl
                 "application/json"
             );
 
-            var response = await _client.PostAsync($"{Uri}/session", accountAsStringContent);
+            var responseMessage = await _client.PostAsync($"{Uri}/session", accountAsStringContent);
 
-            if (!response.IsSuccessStatusCode)
-                throw new Exception(response.Content.ReadAsStringAsync().Result);
+            
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
+            }
 
-            var resultString = await response.Content.ReadAsStringAsync();
+            var resultString = await responseMessage.Content.ReadAsStringAsync();
 
             var result = JsonSerializer.Deserialize<Customer>(resultString, new JsonSerializerOptions()
             {

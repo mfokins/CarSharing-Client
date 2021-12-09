@@ -24,7 +24,6 @@
 
     private async Task AddListing()
     {
-         //TODO by Tomas switch this duplicate database load for a cache retrieval
         _listing.Vehicle = await _vehicleService.GetVehicleAsync(LicenceNo);
 
         try
