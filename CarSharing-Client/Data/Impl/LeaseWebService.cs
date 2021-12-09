@@ -35,6 +35,7 @@ namespace CarSharing_Client.Data.Impl
                 "application/json"
             );
 
+           
             HttpResponseMessage responseMessage = await _client.PostAsync(Uri + "/leases", content);
             if (!responseMessage.IsSuccessStatusCode)
             {
