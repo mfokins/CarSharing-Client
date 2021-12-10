@@ -118,8 +118,9 @@
     protected override async Task OnInitializedAsync()
     {
         _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
+        string cacheKey = "vehicles/" + _customer.Cpr;
         
-        if (!_memoryCache.TryGetValue(_customer.Cpr, out IList<Vehicle> cacheVehicles))
+        if (!_memoryCache.TryGetValue(cacheKey, out IList<Vehicle> cacheVehicles))
         {
             Console.WriteLine("Updating fleet cache...");
             cacheVehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
@@ -127,7 +128,7 @@
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(60 * 30));
 
-            _memoryCache.Set(_customer.Cpr, cacheVehicles, cacheEntryOptions);
+            _memoryCache.Set(cacheKey, cacheVehicles, cacheEntryOptions);
         }
 
         _vehicles = cacheVehicles;
