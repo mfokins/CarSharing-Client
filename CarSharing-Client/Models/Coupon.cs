@@ -1,4 +1,4 @@
-namespace CarSharing_Client.Data
+namespace CarSharing_Client.Models
 {
     public class Coupon
     {

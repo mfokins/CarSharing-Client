@@ -32,8 +32,8 @@
                 <label >Daily price</label>
                  <br>
                  <h3>@_listing.Price</h3>
-                  <label >Total trip price</label>
-                 <h3>@(((DateTo -DateFrom ).Days)* _listing.Price)</h3>
+                  <label >Total lease price</label>
+                 <h3>@(_lease.TotalPrice)</h3>
                  
                 
             </div>
@@ -42,8 +42,6 @@
                 <label >Location</label>
                  <br>
                  <h3>@_listing.Location</h3>
-                 
-               
             </div>
 
         </div>
@@ -76,7 +74,9 @@
     public DateTime DateTo { get; set; }
 
     private Listing _listing;
+    private string _couponCode;
     private Customer _customer;
+    private Lease _lease;
 
     private string _errorMessage;
     private Uri _uri;
@@ -88,6 +88,24 @@
 
         _listing = await _listingService.GetListingById(ListingId);
         _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
+            
+        _lease = new()
+        {
+            LeasedFrom = DateFrom,
+            LeasedTo = DateTo,
+            Customer = _customer,
+            Listing = _listing
+        };
+
+        _couponCode = string.Empty;
+        try
+        {
+            _lease = await _leaseService.ValidateLeaseAsync(_lease, _couponCode);
+        }
+        catch (Exception e)
+        {
+            _errorMessage = e.Message;
+        }
     }
 
     private void GetDataFromUrl()
@@ -112,28 +130,18 @@
 
     private async Task AddLease()
     {
-        Lease lease = new Lease()
-        {
-            LeasedFrom = DateFrom,
-            LeasedTo = DateTo,
-            Customer = _customer,
-            Listing = _listing
-
-        };
-        
         try
         {
-            await _leaseService.AddLeaseAsync(lease);
+            _lease = await _leaseService.ValidateLeaseAsync(_lease, _couponCode);
+            Console.WriteLine(_lease.TotalPrice);
+            await _leaseService.AddLeaseAsync(_lease);
             _navMgr.NavigateTo("/view-rentals/");
         }
         catch (Exception e)
         {
             _errorMessage = e.Message;
         }
-      
         
-      
-
     }
 
     }
