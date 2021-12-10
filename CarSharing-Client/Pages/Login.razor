@@ -47,7 +47,7 @@
     </NotAuthorized>
     <Authorized>
         <h3>Loged in as @context.User.Identity?.Name</h3>
-        <p>Hello @context.User.Identity?.Name your System access level is @context.User.FindFirst(claim => claim.Type.Equals("Level"))?.Value</p>
+       
 
         <button class="btn btn-outline-dark" @onclick="PerformLogout">Log out</button>
     </Authorized>

@@ -10,48 +10,155 @@
 
 
 
-@if (_listing!=null)
-{
-    <div class="form-row">
-            <div class="form-group col-md-5">
-                <label>Date from </label>
-                <br>
-                <h3>@DateFrom</h3>
-              
-            </div>
-            <div class="form-group col-md-5">
-                <label >Date to</label>
-                 <br>
-                <h3>@DateTo</h3>
-               
+<div class="row p-1">
+    @if (_listing != null)
+    {
+        <div class="col-lg-5 col-md-6 col-sm-12 mb-3 ">
+            <div class="card text-center">
+                <div class="member-card">
+                    <div class="card-header p-3">
+                        <h4>Your lease:</h4>
+                        <p> @DateFrom -> @DateTo </p>
+                            
+                    </div>
+                    <div class="card-body">
+                            
+
+                               
+                        <p class="card-text">
+                            <span class="font-weight-light">Daily Price</span> @_listing.Price
+                        </p>
+
+                        <p class="card-text">
+                            <span class="font-weight-light">Price for the whole trip:  =
+                                <strong> @_lease.TotalPrice dkk </strong></span>
+                                  
+                        </p>
+                            
+                                
+                        <div class="card-footer">
+                                
+                        </div>
+                            
+                            
+                    </div>
+                </div>
             </div>
         </div>
+        
+    }
 
-        <div class="form-row">
-            <div class="form-group col-md-5">
-                <label >Daily price</label>
-                 <br>
-                 <h3>@_listing.Price</h3>
-                  <label >Total lease price</label>
-                 <h3>@(_lease.TotalPrice)</h3>
-                 
-                
+
+    @if (_listing?.Vehicle.Owner.FirstName != null)
+    {
+        <div class="col-lg-3 col-md-6 col-sm-12 mb-3 ">
+            <div class="card text-center">
+                <div class="member-card">
+                    <div class="card-header p-3">
+                        <h5>Vehicle owner is </h5>
+                        <div class="d-flex justify-content-around mt-2">
+                            <span class="iconify" data-icon="iconoir:profile-circled" data-width="60" data-height="60"></span>
+                            <div class="d-flex flex-column">
+                                <h4>@_listing.Vehicle.Owner.FirstName @_listing.Vehicle.Owner.LastName </h4>
+                               
+                            </div>
+                        </div>
+                        
+                            
+                    </div>
+                    <div class="card-body">
+                        
+                        <p class="card-text">
+                            <span class="font-weight-light">Phone number:</span> @_listing.Vehicle.Owner.PhoneNo
+                        </p>
+
+
+                        <div class="card-footer">
+
+                        </div>
+
+
+                    </div>
+                </div>
             </div>
-
-            <div class="form-group col-md-5">
-                <label >Location</label>
-                 <br>
-                 <h3>@_listing.Location</h3>
-            </div>
-
         </div>
+        
+    }
+    
+    
+    @if (_listing?.Vehicle != null)
+    {
+        <div class="col-lg-3 col-md-6 col-sm-12 mb-3 ">
+            <div class="card text-center">
+                <div class="member-card">
+                    <div class="card-header p-3">
+                        <h4>@_listing.Vehicle.Brand @_listing.Vehicle.Model </h4>
+                    </div>
+                    <div class="card-body">
+                            
+                        <p class="card-text">
+                            <span class="font-weight-light">Licence no:</span> @_listing.Vehicle.LicenseNo
+                        </p>
+                            
+                        <p class="card-text">
+                            <span class="font-weight-light">Transmition</span> @_listing.Vehicle.Transmission
+                        </p>
+                        <p class="card-text">
+                            <span class="font-weight-light">Seats:</span> @_listing.Vehicle.Seats
+                        </p>
+                        <p class="card-text">
+                            <span class="font-weight-light">Fuel:</span> @_listing.Vehicle.FuelType
+                        </p>
+                        <p class="card-text">
+                            <span class="font-weight-light">Vehicle type:</span> @_listing.Vehicle.Type
+                        </p>
+                        <p class="card-text">
+                            <span class="font-weight-light">Manufacture year:</span> @_listing.Vehicle.ManufactureYear
+                        </p>
+                            
+    
+    
+                        <div class="card-footer">
+    
+                        </div>
+    
+    
+                    </div>
+                </div>
+            </div>
+        </div>
+            
+    }
+    
+</div>
 
-    <div class="col-4 ml-2 mt-4">
-        <p class="actions">
-            <button @onclick="AddLease" class="btn btn-outline-dark ">Lease vehicle</button>
-            <button  @onclick="@( () => _navMgr.NavigateTo("/search/"))" class="btn btn-danger" >Cancel</button>
-        </p>
+
+<div class="row mb-0">
+    <div class="col-2">
+        <label> Input discount code</label>
     </div>
+    
+</div>
+<div class="row mt-0">
+    <div class="col-2 ml-2 mt-1">
+        <input @bind="_couponCode" type="text" class="form-control ">
+    </div>
+    
+    <div class="col-2  mt-1 mb-5">
+    <button @onclick="ApplyDiscountCode" class="btn btn-dark">Apply discount code</button>
+</div>
+</div>
+    
+          
+
+<div class="row">
+    <div class="col-2 ml-2 mt-5">
+    <p class="actions">
+        <button @onclick="AddLease" class="btn btn-outline-dark ">Lease vehicle</button>
+        <button  @onclick="@(() =>_navMgr.NavigateTo("/search/") )" class="btn btn-danger" >Cancel</button>
+    </p>
+</div>
+</div>
     
     @if (_errorMessage != "")
     {
@@ -59,8 +166,6 @@
             @_errorMessage
         </div>
     }
-   
-}
 
 
 
@@ -143,6 +248,20 @@
         }
         
     }
+
+    private async Task ApplyDiscountCode()
+    {
+        try
+        {
+            _lease = await _leaseService.ValidateLeaseAsync(_lease, _couponCode);
+            _errorMessage = "";
+        }
+        catch (Exception e)
+        {
+            _errorMessage = e.Message;
+        }
+    }
+   
 
     }
    
