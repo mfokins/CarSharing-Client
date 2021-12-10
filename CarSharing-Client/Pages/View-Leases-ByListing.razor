@@ -1,0 +1,49 @@
+@page "/view-leases/listing/{ListingId:int}"
+@using CarSharing_Client.Data
+@using CarSharing_Client.Models
+@using CarSharing_Client.Components
+
+@inject ILeaseService _leaseService
+@inject IListingService _listingService
+@inject AuthenticationStateProvider _authenticationStateProvider
+@inject NavigationManager _navigationManager
+
+@if (_listing != null)
+{
+    <h3>Leases for the vehicle @(_listing.Vehicle.LicenseNo) @(_listing.Vehicle.Brand) @(_listing.Vehicle.Model)</h3>
+}
+
+<hr/>
+<div class="row p-1">
+    @if (_leases != null)
+    {
+        foreach (var lease in _leases)
+        {
+            <LeaseCard
+                Lease="@lease"
+                Person="@lease.Customer"
+                CancelLeaseHandler="@(async () => await _leaseService.CancelLeaseAsync(lease.Id))"/>
+        }
+    }
+</div>
+
+
+@code {
+    [Parameter]
+    public int ListingId { get; set; }
+
+    private Listing _listing;
+    private IList<Lease> _leases;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _listing = await _listingService.GetListingById(ListingId);
+        _leases = await _leaseService.GetLeasesByListingAsync(ListingId);
+    }
+
+    private void Back()
+    {
+        _navigationManager.NavigateTo("/view-vehicles");
+    }
+
+}

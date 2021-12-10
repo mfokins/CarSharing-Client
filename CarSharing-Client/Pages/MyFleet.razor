@@ -91,6 +91,10 @@
                                 Listing listing = _listings[vehicle.LicenseNo];
 
                                 <p class="card-text">
+                                    <Button @onclick="@(() => {  _navigationManager.NavigateTo($"/view-leases/listing/{listing.Id}"); })" class="btn btn-dark">View leases</Button>
+                                </p>
+                                
+                                <p class="card-text">
                                     <Button @onclick="@(() => _navigationManager.NavigateTo($"/listing-edit/{listing.Id}"))" class="btn btn-dark">Open listing</Button>
                                 </p>
 
@@ -109,7 +113,7 @@
 
 @code
 {
-    private const string DateTimeFormat = "dd/MM/yyyy HH':'mm':'ss";
+    private const string DateTimeFormat = "dd/MM/yyyy HH':'mm";
 
     private IList<Vehicle> _vehicles = new List<Vehicle>();
     private readonly Dictionary<string, Listing> _listings = new();

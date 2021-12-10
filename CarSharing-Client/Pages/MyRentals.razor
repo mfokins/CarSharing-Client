@@ -2,6 +2,8 @@
 @using CarSharing_Client.Data
 @using CarSharing_Client.Models
 @using CarSharing_Client.Authentication
+@using CarSharing_Client.Components
+
 @inject ILeaseService _leaseService
 
 @inject IListingService _listingService
@@ -17,76 +19,17 @@
     {
         foreach (var lease in _leases)
         {
-            <div class="col-lg-4 col-md-6 col-sm-12 mb-3" style="opacity: @(lease.Canceled ? 0.6 : 1)">
-                <div class="card text-center">
-                    <div class="member-card">
-                        <div class="card-header p-3">
-                            <div class="d-flex justify-content-around mt-2">
-                                <span class="iconify" data-icon="iconoir:profile-circled" data-width="60" data-height="60"></span>
-                                <div class="d-flex flex-column">
-                                    <h4>@lease.Listing.Vehicle.Owner.FirstName @lease.Listing.Vehicle.Owner.LastName </h4>
-                                    <p>PhoneNo: @lease.Listing.Vehicle.Owner.PhoneNo</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card-body">
-                            @if (lease.Canceled)
-                            {
-                                <strong>
-                                    <span class="oi oi-circle-x" data-width="30" data-height="30"></span>
-                                    <em>Lease has been canceled</em>
-                                </strong>
-                            }
-                            else
-                            {
-                                <strong>
-                                    <span class="oi oi-circle-check" data-width="30" data-height="30"></span>
-                                    <em>Lease confirmed</em>
-                                </strong>
-                            }
-
-                            <hr/>
-                            <div class="card-text">
-                                <p>
-                                     @lease.LeasedFrom.ToString(DateTimeFormat) -> @lease.LeasedTo.ToString(DateTimeFormat)
-                                </p>
-                            </div>
-
-                            <div class="card-text">
-                                <span class="font-weight-light">Price: </span>
-                                <p>
-                                    @lease.Listing.Price dkk x @((lease.LeasedTo - lease.LeasedFrom).Days) days =
-                                    <strong> @((lease.LeasedTo - lease.LeasedFrom).Days * lease.Listing.Price) dkk </strong>
-                                </p>
-                            </div>
-                            
-
-                            @if (!lease.Canceled)
-                            {
-                                <Button @onclick="@(async () => await _leaseService.CancelLeaseAsync(lease.Id))" class="btn btn-dark">Cancel </Button>
-                            }
-                        </div>
-
-                        <div class="card-footer p-3">
-                            <span class="iconify " data-icon="fluent:vehicle-car-profile-ltr-16-filled" data-width="30" data-height="30"></span>
-                            <h4>@lease.Listing.Vehicle.Brand @lease.Listing.Vehicle.Model </h4>
-                            <p>
-                                <strong>Licence number: @lease.Listing.Vehicle.LicenseNo</strong>
-                            </p>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+            <LeaseCard
+                Lease="@lease"
+                Person="@lease.Listing.Vehicle.Owner"
+                CancelLeaseHandler="@(() => CancelLeaseAsync(lease.Id))"/>
         }
     }
 </div>
 
 
 @code {
-    private const string DateTimeFormat = "dd/MM/yyyy HH':'mm':'ss";
-    
+
     private IList<Lease> _leases;
     private Customer _customer;
 
@@ -96,6 +39,16 @@
 
 
         _leases = await _leaseService.GetLeasesByCustomerCpr(_customer.Cpr);
+    }
+
+    private async Task CancelLeaseAsync(int leaseId)
+    {
+        await _leaseService.CancelLeaseAsync(leaseId);
+        Lease lease = _leases.FirstOrDefault(l => l.Id == leaseId);
+        if (lease != null)
+        {
+            lease.Canceled = true;
+        }
     }
 
 }
