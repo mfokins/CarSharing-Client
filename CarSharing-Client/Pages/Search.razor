@@ -1,8 +1,12 @@
 ﻿@page "/search"
 @using Models
 @using Data
+@using Microsoft.Extensions.Caching.Memory
+@using CarSharing_Client.Authentication
 @inject NavigationManager _navigationManager
 @inject IListingService _listingService
+@inject AuthenticationStateProvider _authenticationStateProvider
+@inject IMemoryCache _memoryCache
 
 <h2 class="p-2">Search a car</h2>
 
@@ -99,15 +103,43 @@
 @code {
     private string _errorMessage = "";
 
-    private readonly SearchParams _params = new()
+    private SearchParams _params = new()
     {
         DateFrom = DateTime.UtcNow
     };
 
     private IList<Listing> _listings;
+    private string _cacheKey;
+
+    protected override void OnInitialized()
+    {
+        Customer customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
+        if (customer == null) return;
+        _cacheKey = "searchParams/" + customer.Cpr;
+        if (_memoryCache.TryGetValue(_cacheKey, out SearchParams cacheParams))
+        {
+            _params.Location = cacheParams.Location;
+            _params.DateTo = cacheParams.DateTo;
+        }
+    }
+
 
     private async Task SearchForListing()
     {
+        if (_cacheKey != null)
+        {
+            SearchParams cacheParams = new()
+            {
+                Location = _params.Location,
+                DateTo = _params.DateTo
+            };
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromSeconds(30 * 60));
+
+            _memoryCache.Set(_cacheKey, cacheParams, cacheEntryOptions);
+        }
+
+
         if (_params.DateFrom != null && _params.DateTo != null)
         {
             if (_params.DateFrom >= _params.DateTo)
