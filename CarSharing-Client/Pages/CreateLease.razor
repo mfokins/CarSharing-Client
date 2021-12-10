@@ -3,143 +3,50 @@
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
 @using CarSharing_Client.Authentication
-
 @inject NavigationManager _navMgr
-
 @inject IListingService _listingService
 @inject ILeaseService _leaseService
 @inject AuthenticationStateProvider _authenticationStateProvider
 
-  
 
-<div class="row p-1">
-    @if (_listing != null)
-    {
-        <div class="col-lg-5 col-md-6 col-sm-12 mb-3 ">
-            <div class="card text-center">
-                <div class="member-card">
-                    <div class="card-header p-3">
-                        <h4>Your lease:</h4>
-                        <p> From:                                   TO: </p>
-                        <p> @DateFrom.ToString(DateTimeFormat) -> @DateTo.ToString(DateTimeFormat)</p>
-                            
-                    </div>
-                    <div class="card-body">
-                            
 
-                               
-                        <p class="card-text">
-                            <span class="font-weight-light">Daily Price</span> @_listing.Price
-                        </p>
-
-                        <p class="card-text">
-                            <span class="font-weight-light">Price for the whole trip:   @_listing.Price dkk x @((DateTo - DateFrom).Days) days =
-                                <strong> @((DateTo - DateFrom).Days * _listing.Price) dkk </strong></span>
-                                  
-                        </p>
-                            
-                                
-                        <div class="card-footer">
-                                
-                        </div>
-                            
-                            
-                    </div>
-                </div>
+@if (_listing!=null)
+{
+    <div class="form-row">
+            <div class="form-group col-md-5">
+                <label>Date from </label>
+                <br>
+                <h3>@DateFrom</h3>
+              
+            </div>
+            <div class="form-group col-md-5">
+                <label >Date to</label>
+                 <br>
+                <h3>@DateTo</h3>
+               
             </div>
         </div>
-        
-    }
 
-
-
-    @if (_listing?.Vehicle.Owner.FirstName != null)
-    {
-        <div class="col-lg-3 col-md-6 col-sm-12 mb-3 ">
-            <div class="card text-center">
-                <div class="member-card">
-                    <div class="card-header p-3">
-                        <h5>Vehicle owner is </h5>
-                        <div class="d-flex justify-content-around mt-2">
-                            <span class="iconify" data-icon="iconoir:profile-circled" data-width="60" data-height="60"></span>
-                            <div class="d-flex flex-column">
-                                <h4>@_listing.Vehicle.Owner.FirstName @_listing.Vehicle.Owner.LastName </h4>
-                               
-                            </div>
-                        </div>
-                        
-                            
-                    </div>
-                    <div class="card-body">
-                        
-                        <p class="card-text">
-                            <span class="font-weight-light">Phone number:</span> @_listing.Vehicle.Owner.PhoneNo
-                        </p>
-
-
-                        <div class="card-footer">
-
-                    </div>
-
-
-                    </div>
-                </div>
-
+        <div class="form-row">
+            <div class="form-group col-md-5">
+                <label >Daily price</label>
+                 <br>
+                 <h3>@_listing.Price</h3>
+                  <label >Total lease price</label>
+                 <h3>@(_lease.TotalPrice)</h3>
+                 
+                
             </div>
+
+            <div class="form-group col-md-5">
+                <label >Location</label>
+                 <br>
+                 <h3>@_listing.Location</h3>
+            </div>
+
         </div>
-        
-    }
-    
-    
-    @if (_listing?.Vehicle != null)
-        {
-            <div class="col-lg-3 col-md-6 col-sm-12 mb-3 ">
-                <div class="card text-center">
-                    <div class="member-card">
-                        <div class="card-header p-3">
-                            <h4>@_listing.Vehicle.Brand @_listing.Vehicle.Model </h4>
-                        </div>
-                        <div class="card-body">
-                            
-                            <p class="card-text">
-                                <span class="font-weight-light">Licence no:</span> @_listing.Vehicle.LicenseNo
-                            </p>
-                            
-                            <p class="card-text">
-                                <span class="font-weight-light">Transmition</span> @_listing.Vehicle.Transmission
-                            </p>
-                            <p class="card-text">
-                                <span class="font-weight-light">Seats:</span> @_listing.Vehicle.Seats
-                            </p>
-                            <p class="card-text">
-                                <span class="font-weight-light">Fuel:</span> @_listing.Vehicle.FuelType
-                            </p>
-                            <p class="card-text">
-                                <span class="font-weight-light">Vehicle type:</span> @_listing.Vehicle.Type
-                            </p>
-                            <p class="card-text">
-                                <span class="font-weight-light">Manufacture year:</span> @_listing.Vehicle.ManufactureYear
-                            </p>
-                            
-    
-    
-                            <div class="card-footer">
-    
-                        </div>
-    
-    
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-        }
-    
-</div>
 
-
-    
-<div class="col-4 ml-2 mt-4">
+    <div class="col-4 ml-2 mt-4">
         <p class="actions">
             <button @onclick="AddLease" class="btn btn-outline-dark ">Lease vehicle</button>
             <button  @onclick="@( () => _navMgr.NavigateTo("/search/"))" class="btn btn-danger" >Cancel</button>
@@ -153,7 +60,7 @@
         </div>
     }
    
-
+}
 
 
 
@@ -172,14 +79,7 @@
     private Lease _lease;
 
     private string _errorMessage;
-
     private Uri _uri;
-
-    
-    private const string DateTimeFormat = "dd/MM/yyyy HH':'mm':'ss";
-    
-
-   
     
     protected override async Task OnInitializedAsync()
     {

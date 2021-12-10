@@ -43,24 +43,12 @@
     </div>
 </EditForm>
 
-<AuthorizeView>
-    <NotAuthorized>
-         <div class="alert alert-info col-5 ml-2" role="alert">
-               To rent vehicle you need to log in
-            </div>
-    </NotAuthorized>
-</AuthorizeView>
-
-
-
 @if (_errorMessage != "")
 {
     <div class="alert alert-danger col-5 ml-2" role="alert">
         @_errorMessage
     </div>
 }
-
-
 
 @if (_listings != null)
 {
@@ -99,18 +87,13 @@
 
 
                         </div>
+                        <div class="card-footer">
+                            <p class="card-text">
+                                <Button @onclick="@(() => _navigationManager.NavigateTo($"/create-lease/?listingId={listing.Id}&DateFrom={_params.DateFrom}&DateTo={_params.DateTo}"))" class="btn btn-dark">Open listing</Button>
+                            </p>
 
-                        
-                         <AuthorizeView Policy="MustBeLoggedIn">
-                         <div class="card-footer">
-                             <p class="card-text">
-                                 <Button @onclick="@(() => _navigationManager.NavigateTo($"/create-lease/?listingId={listing.Id}&DateFrom={_params.DateFrom}&DateTo={_params.DateTo}"))" class="btn btn-dark">Open listing</Button>                            </p>
-                            
-                         </div>
-                          </AuthorizeView>
-
+                        </div>
                     </div>
-                      
                 </div>
             </div>
         }
