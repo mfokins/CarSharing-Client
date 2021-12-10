@@ -22,7 +22,7 @@
             <LeaseCard
                 Lease="@lease"
                 Person="@lease.Customer"
-                CancelLeaseHandler="@(async () => await _leaseService.CancelLeaseAsync(lease.Id))"/>
+                CancelLeaseHandler="@(async () => await CancelLeaseAsync(lease.Id))"/>
         }
     }
 </div>
@@ -40,10 +40,19 @@
         _listing = await _listingService.GetListingById(ListingId);
         _leases = await _leaseService.GetLeasesByListingAsync(ListingId);
     }
+    
+    private async Task CancelLeaseAsync(int leaseId)
+    {
+        await _leaseService.CancelLeaseAsync(leaseId);
+        Lease lease = _leases.FirstOrDefault(l => l.Id == leaseId);
+        if (lease != null)
+        {
+            lease.Canceled = true;
+        }
+    }
 
     private void Back()
     {
         _navigationManager.NavigateTo("/view-vehicles");
     }
-
 }
