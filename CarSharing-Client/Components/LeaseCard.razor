@@ -1,0 +1,95 @@
+@using CarSharing_Client.Models
+
+<div class="col-lg-4 col-md-6 col-sm-12 mb-3" style="opacity: @(Lease.Canceled ? 0.6 : 1)">
+                <div class="card text-center">
+                    <div class="member-card">
+                        <div class="card-header p-3">
+                            <div class="d-flex justify-content-around mt-2">
+                                <div class="d-flex flex-column">
+                                    <div class="m-auto">
+                                        <span class="iconify" data-icon="iconoir:profile-circled" data-width="50" data-height="50"></span>
+                                        <p class="text-muted">Customer</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <div class="my-auto">
+                                        <h4>@Person.FirstName @Person.LastName </h4>
+                                        <p>PhoneNo: @Person.PhoneNo</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            @if (Lease.Canceled)
+                            {
+                                <strong>
+                                    <span class="oi oi-circle-x" data-width="30" data-height="30"></span>
+                                    <em>Lease has been canceled</em>
+                                </strong>
+                            }
+                            else
+                            {
+                                <strong>
+                                    <span class="oi oi-circle-check" data-width="30" data-height="30"></span>
+                                    <em>Lease confirmed</em>
+                                </strong>
+                            }
+
+                            <hr/>
+                            <div class="card-text">
+                                <p>
+                                    @Lease.LeasedFrom.ToString(DateTimeFormat) -> @Lease.LeasedTo.ToString(DateTimeFormat)
+                                </p>
+                            </div>
+
+                            <div class="card-text">
+                                <span class="font-weight-light">Price: </span>
+                                <p>
+                                    @Lease.Listing.Price dkk x @((Lease.LeasedTo - Lease.LeasedFrom).Days) days =
+                                    <strong> @((Lease.LeasedTo - Lease.LeasedFrom).Days * Lease.Listing.Price) dkk </strong>
+                                </p>
+                            </div>
+                            
+                            <div class="card-text">
+                                <span class="font-weight-light">Location: </span>
+                                <p>
+                                    <strong> @Lease.Listing.Location </strong>
+                                </p>
+                            </div>
+
+
+                            @if (!Lease.Canceled)
+                            {
+                                <Button @onclick="CancelLeaseHandler" class="btn btn-dark">Cancel </Button>
+                            }
+                        </div>
+
+                        <div class="card-footer p-3">
+                            <span class="iconify " data-icon="fluent:vehicle-car-profile-ltr-16-filled" data-width="30" data-height="30"></span>
+                            <h4>@Lease.Listing.Vehicle.Brand @Lease.Listing.Vehicle.Model </h4>
+                            <p>
+                                <strong>Licence number: @Lease.Listing.Vehicle.LicenseNo</strong>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+@functions {
+        private const string DateTimeFormat = "dd/MM/yyyy HH':'mm";
+    
+    [Parameter]
+    public Lease Lease { get; set; }
+    
+    [Parameter]
+    public Customer Person { get; set; }
+
+    [Parameter]
+    public EventCallback CancelLeaseHandler { get; set; }
+    
+    [Parameter]
+    public EventCallback GoBackHandler { get; set; }
+
+}

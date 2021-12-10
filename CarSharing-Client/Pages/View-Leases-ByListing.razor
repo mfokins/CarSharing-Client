@@ -1,19 +1,19 @@
-@page "/view-rentals"
+@page "/view-leases/listing/{ListingId:int}"
 @using CarSharing_Client.Data
 @using CarSharing_Client.Models
-@using CarSharing_Client.Authentication
 @using CarSharing_Client.Components
 
 @inject ILeaseService _leaseService
-
 @inject IListingService _listingService
-
 @inject AuthenticationStateProvider _authenticationStateProvider
+@inject NavigationManager _navigationManager
 
+@if (_listing != null)
+{
+    <h3>Leases for the vehicle @(_listing.Vehicle.LicenseNo) @(_listing.Vehicle.Brand) @(_listing.Vehicle.Model)</h3>
+}
 
-<h3>MyRentals</h3>
-
-
+<hr/>
 <div class="row p-1">
     @if (_leases != null)
     {
@@ -21,7 +21,7 @@
         {
             <LeaseCard
                 Lease="@lease"
-                Person="@lease.Listing.Vehicle.Owner"
+                Person="@lease.Customer"
                 CancelLeaseHandler="@(async () => await CancelLeaseAsync(lease.Id))"/>
         }
     }
@@ -29,18 +29,18 @@
 
 
 @code {
+    [Parameter]
+    public int ListingId { get; set; }
 
+    private Listing _listing;
     private IList<Lease> _leases;
-    private Customer _customer;
 
     protected override async Task OnInitializedAsync()
     {
-        _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
-
-
-        _leases = await _leaseService.GetLeasesByCustomerCpr(_customer.Cpr);
+        _listing = await _listingService.GetListingById(ListingId);
+        _leases = await _leaseService.GetLeasesByListingAsync(ListingId);
     }
-
+    
     private async Task CancelLeaseAsync(int leaseId)
     {
         await _leaseService.CancelLeaseAsync(leaseId);
@@ -51,4 +51,8 @@
         }
     }
 
+    private void Back()
+    {
+        _navigationManager.NavigateTo("/view-vehicles");
+    }
 }
