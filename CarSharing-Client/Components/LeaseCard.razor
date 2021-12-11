@@ -43,10 +43,9 @@
                             </div>
 
                             <div class="card-text">
-                                <span class="font-weight-light">Price: </span>
+                                <span class="font-weight-light">TotalPrice: </span>
                                 <p>
-                                    @Lease.Listing.Price dkk x @((Lease.LeasedTo - Lease.LeasedFrom).Days) days =
-                                    <strong> @((Lease.LeasedTo - Lease.LeasedFrom).Days * Lease.Listing.Price) dkk </strong>
+                                    <strong> @Lease.TotalPrice dkk </strong>
                                 </p>
                             </div>
                             
