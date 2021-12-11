@@ -3,10 +3,18 @@
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
 @using CarSharing_Client.Authentication
+@using QRCoder
+@using System.Drawing
+@using System.Drawing.Imaging
+@using System.IO
+@using System.Threading
+@using Microsoft.AspNetCore.Mvc.TagHelpers.Cache
 @inject NavigationManager _navMgr
 @inject IListingService _listingService
 @inject ILeaseService _leaseService
 @inject AuthenticationStateProvider _authenticationStateProvider
+@inject IMobilePayWebService _mobilePayWebService
+
 
 
 
@@ -137,30 +145,44 @@
     <div class="col-2">
         <label> Input discount code</label>
     </div>
-    
+
 </div>
+
 <div class="row mt-0">
     <div class="col-2 ml-2 mt-1">
         <input @bind="_couponCode" type="text" class="form-control ">
     </div>
-    
-    <div class="col-2  mt-1 mb-5">
-    <button @onclick="ApplyDiscountCode" class="btn btn-dark">Apply discount code</button>
-</div>
+
+    <div class="col-2  mt-1 mb-0">
+        <button @onclick="ApplyDiscountCode" class="btn btn-dark">Apply discount code</button>
+    </div>
+    <div class="col-1"></div>
+    <div class="col-2">
+        <img class="img-fluid" src="@_qrcode">
+    </div>
 </div>
     
           
 
 <div class="row">
-    <div class="col-2 ml-2 mt-5">
-    <p class="actions">
-        <button @onclick="AddLease" class="btn btn-outline-dark ">Lease vehicle</button>
-        <button  @onclick="@(() =>_navMgr.NavigateTo("/search/") )" class="btn btn-danger" >Cancel</button>
-    </p>
+    <div class="col-5"></div>
+    <div class="col-3 ml-2 mt-0">
+        <p class="actions">
+            <button @onclick="AddLease" class="btn btn-outline-dark ">@_addButtonText</button>
+            <button @onclick="@(() => _navMgr.NavigateTo("/search/"))" class="btn btn-danger">Cancel</button>
+        </p>
+    </div>
 </div>
-</div>
+
+
+
+
+
+
+
+
     
-    @if (_errorMessage != "")
+@if (_errorMessage != "")
     {
         <div class="alert alert-danger" role="alert">
             @_errorMessage
@@ -185,10 +207,18 @@
 
     private string _errorMessage;
     private Uri _uri;
+    private string _qrcode;
+    private string _addButtonText;
+    
+    
     
     protected override async Task OnInitializedAsync()
     {
         _errorMessage = "";
+        _addButtonText = "Lease vehicle";
+        await GenerateQrCode();
+        
+        
         GetDataFromUrl();
 
         _listing = await _listingService.GetListingById(ListingId);
@@ -211,6 +241,8 @@
         {
             _errorMessage = e.Message;
         }
+        
+       
     }
 
     private void GetDataFromUrl()
@@ -237,10 +269,22 @@
     {
         try
         {
+            _addButtonText = "Verifying payment";
             _lease = await _leaseService.ValidateLeaseAsync(_lease, _couponCode);
-            Console.WriteLine(_lease.TotalPrice);
-            await _leaseService.AddLeaseAsync(_lease);
-            _navMgr.NavigateTo("/view-rentals/");
+            if (await _mobilePayWebService.ValidatePayment())
+            {
+                _addButtonText = "Payment verified";
+                
+                Console.WriteLine(_lease.TotalPrice);
+                await _leaseService.AddLeaseAsync(_lease);
+                
+                _navMgr.NavigateTo("/view-rentals/");
+            }
+            else
+            {
+                _errorMessage = "payment failed";
+            }
+            
         }
         catch (Exception e)
         {
@@ -261,7 +305,28 @@
             _errorMessage = e.Message;
         }
     }
-   
+
+    private async Task GenerateQrCode()
+    {
+        using (MemoryStream ms = new MemoryStream())
+        {
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(await _mobilePayWebService.CreateNewPayment(), QRCodeGenerator.ECCLevel.Q);
+            QRCode qrCode = new QRCode(qrCodeData);
+            using (Bitmap QrCodeBitMap = qrCode.GetGraphic(20))
+            {
+                QrCodeBitMap.Save(ms,ImageFormat.Png);
+                _qrcode = "data:image/png;base64," + Convert.ToBase64String(ms.ToArray());
+            }
+            
+        }
+    }
+
+    private async Task wait()
+    {
+        Thread.Sleep(2000);
+       await Task.Delay(2000);
+    }
 
     }
    
