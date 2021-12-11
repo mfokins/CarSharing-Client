@@ -22,6 +22,7 @@
             <LeaseCard
                 Lease="@lease"
                 Person="@lease.Customer"
+                PersonLabel="Customer"
                 CancelLeaseHandler="@(async () => await CancelLeaseAsync(lease.Id))"/>
         }
     }

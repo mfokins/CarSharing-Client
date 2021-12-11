@@ -7,7 +7,6 @@ namespace CarSharing_Client.Data.Impl
 {
     public class MobilePayWebService : IMobilePayWebService
     {
-        //private const string Uri = "http://10.154.212.101:8080";
         private const string Uri = "http://localhost:8080";
         private readonly HttpClient _client;
 
@@ -17,11 +16,10 @@ namespace CarSharing_Client.Data.Impl
             _client = new HttpClient();
         }
 
-        public async Task<string> CreateNewPayment()
+        public async Task<string> CreateNewPayment(decimal amount)
         {
             HttpResponseMessage responseMessage =
-                await _client.GetAsync(Uri + "/mobilepay/");
-            
+                await _client.GetAsync(Uri + $"/mobilepay?amount={amount}");
             
             if (!responseMessage.IsSuccessStatusCode)
             {
@@ -30,17 +28,15 @@ namespace CarSharing_Client.Data.Impl
                 throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
             }
             
-
-            string result = await responseMessage.Content.ReadAsStringAsync();
-            return result;
+            return await responseMessage.Content.ReadAsStringAsync();
         }
 
-        public async Task<bool> ValidatePayment()
+        public async Task<bool> ValidatePayment(string paymentId)
         {
             HttpResponseMessage responseMessage =
-                await _client.GetAsync(Uri + "/mobilepay/verify");
-            
-            
+                await _client.GetAsync(Uri + $"/mobilepay/verify?paymentId={paymentId}");
+
+
             if (!responseMessage.IsSuccessStatusCode)
             {
                 var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
@@ -48,7 +44,6 @@ namespace CarSharing_Client.Data.Impl
                 throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
             }
             
-
             string result = await responseMessage.Content.ReadAsStringAsync();
             bool finalResult = bool.Parse(result);
             return finalResult;

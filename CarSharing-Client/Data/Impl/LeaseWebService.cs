@@ -37,8 +37,7 @@ namespace CarSharing_Client.Data.Impl
             );
 
             string pathUri = "/leases/coupons/" + (couponCode != "" ? $"{couponCode}" : "default");
-            Console.WriteLine(Uri+pathUri);
-            
+
             HttpResponseMessage responseMessage = await _client.PostAsync(Uri + pathUri, content);
             
             var resultString = await responseMessage.Content.ReadAsStringAsync();

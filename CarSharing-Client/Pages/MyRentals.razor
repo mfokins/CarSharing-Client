@@ -5,9 +5,7 @@
 @using CarSharing_Client.Components
 
 @inject ILeaseService _leaseService
-
 @inject IListingService _listingService
-
 @inject AuthenticationStateProvider _authenticationStateProvider
 
 
@@ -22,6 +20,7 @@
             <LeaseCard
                 Lease="@lease"
                 Person="@lease.Listing.Vehicle.Owner"
+                PersonLabel="Owner"
                 CancelLeaseHandler="@(async () => await CancelLeaseAsync(lease.Id))"/>
         }
     }

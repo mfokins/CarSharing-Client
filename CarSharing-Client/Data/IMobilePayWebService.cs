@@ -4,7 +4,7 @@ namespace CarSharing_Client.Data
 {
     public interface IMobilePayWebService
     {
-        Task<string> CreateNewPayment();
-        Task<bool> ValidatePayment();
+        Task<string> CreateNewPayment(decimal amount);
+        Task<bool> ValidatePayment(string paymentId);
     }
 }

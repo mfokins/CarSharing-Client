@@ -8,7 +8,7 @@
                                 <div class="d-flex flex-column">
                                     <div class="m-auto">
                                         <span class="iconify" data-icon="iconoir:profile-circled" data-width="50" data-height="50"></span>
-                                        <p class="text-muted">Owner</p>
+                                        <p class="text-muted">@PersonLabel</p>
                                     </div>
                                 </div>
                                 <div class="d-flex flex-column">
@@ -35,7 +35,6 @@
                                     <em>Lease confirmed</em>
                                 </strong>
                             }
-
                             <hr/>
                             <div class="card-text">
                                 <p>
@@ -46,7 +45,8 @@
                             <div class="card-text">
                                 <span class="font-weight-light">Price: </span>
                                 <p>
-                                    <strong> @(Lease.TotalPrice) dkk </strong>
+                                    @Lease.Listing.Price dkk x @((Lease.LeasedTo - Lease.LeasedFrom).Days) days =
+                                    <strong> @((Lease.LeasedTo - Lease.LeasedFrom).Days * Lease.Listing.Price) dkk </strong>
                                 </p>
                             </div>
                             
@@ -84,6 +84,9 @@
     
     [Parameter]
     public Customer Person { get; set; }
+    
+    [Parameter]
+    public string PersonLabel { get; set; }
 
     [Parameter]
     public EventCallback CancelLeaseHandler { get; set; }
