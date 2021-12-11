@@ -3,91 +3,238 @@
 @using CarSharing_Client.Models
 @using CarSharing_Client.Data
 @using CarSharing_Client.Authentication
+@using QRCoder
+@using System.Drawing
+@using System.Drawing.Imaging
+@using System.IO
 @inject NavigationManager _navMgr
 @inject IListingService _listingService
 @inject ILeaseService _leaseService
 @inject AuthenticationStateProvider _authenticationStateProvider
+@inject IMobilePayWebService _mobilePayWebService
 
 
-
-@if (_listing!=null)
-{
-    <div class="form-row">
-            <div class="form-group col-md-5">
-                <label>Date from </label>
-                <br>
-                <h3>@DateFrom</h3>
-              
-            </div>
-            <div class="form-group col-md-5">
-                <label >Date to</label>
-                 <br>
-                <h3>@DateTo</h3>
-               
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group col-md-5">
-                <label >Daily price</label>
-                 <br>
-                 <h3>@_listing.Price</h3>
-                  <label >Total trip price</label>
-                 <h3>@(((DateTo -DateFrom ).Days)* _listing.Price)</h3>
-                 
-                
-            </div>
-
-            <div class="form-group col-md-5">
-                <label >Location</label>
-                 <br>
-                 <h3>@_listing.Location</h3>
-                 
-               
-            </div>
-
-        </div>
-
-    <div class="col-4 ml-2 mt-4">
-        <p class="actions">
-            <button @onclick="AddLease" class="btn btn-outline-dark ">Lease vehicle</button>
-            <button  @onclick="@( () => _navMgr.NavigateTo("/search/"))" class="btn btn-danger" >Cancel</button>
-        </p>
-    </div>
-    
-    @if (_errorMessage != "")
+<div class="row p-1">
+    @if (_listing != null)
     {
-        <div class="alert alert-danger" role="alert">
-            @_errorMessage
+        <div class="col-lg-5 col-md-6 col-sm-12 mb-3 ">
+            <div class="card text-center">
+                <div class="member-card">
+                    <div class="card-header p-3">
+                        <h4>Your lease:</h4>
+                        <p> @DateFrom -> @DateTo </p>
+
+                    </div>
+                    <div class="card-body">
+
+
+                        <p class="card-text">
+                            <span class="font-weight-light">Daily Price</span> @_listing.Price
+                        </p>
+
+                        <p class="card-text">
+                            <span class="font-weight-light">
+                                Price for the whole trip: =
+                                <strong> @_lease.TotalPrice dkk </strong>
+                            </span>
+
+                        </p>
+
+
+                        <div class="card-footer">
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
         </div>
     }
-   
+
+
+    @if (_listing?.Vehicle.Owner != null)
+    {
+        <div class="col-lg-3 col-md-6 col-sm-12 mb-3 ">
+            <div class="card text-center">
+                <div class="member-card">
+                    <div class="card-header p-3">
+                        <h5>Vehicle owner is </h5>
+                        <div class="d-flex justify-content-around mt-2">
+                            <span class="iconify" data-icon="iconoir:profile-circled" data-width="60" data-height="60"></span>
+                            <div class="d-flex flex-column">
+                                <h4>@_listing.Vehicle.Owner.FirstName @_listing.Vehicle.Owner.LastName </h4>
+
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="card-body">
+
+                        <p class="card-text">
+                            <span class="font-weight-light">Phone number:</span> @_listing.Vehicle.Owner.PhoneNo
+                        </p>
+
+
+                        <div class="card-footer">
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+
+    @if (_listing?.Vehicle != null)
+    {
+        <div class="col-lg-3 col-md-6 col-sm-12 mb-3 ">
+            <div class="card text-center">
+                <div class="member-card">
+                    <div class="card-header p-3">
+                        <h4>@_listing.Vehicle.Brand @_listing.Vehicle.Model </h4>
+                    </div>
+                    <div class="card-body">
+
+                        <p class="card-text">
+                            <span class="font-weight-light">Licence no:</span> @_listing.Vehicle.LicenseNo
+                        </p>
+
+                        <p class="card-text">
+                            <span class="font-weight-light">Transmition</span> @_listing.Vehicle.Transmission
+                        </p>
+                        <p class="card-text">
+                            <span class="font-weight-light">Seats:</span> @_listing.Vehicle.Seats
+                        </p>
+                        <p class="card-text">
+                            <span class="font-weight-light">Fuel:</span> @_listing.Vehicle.FuelType
+                        </p>
+                        <p class="card-text">
+                            <span class="font-weight-light">Vehicle type:</span> @_listing.Vehicle.Type
+                        </p>
+                        <p class="card-text">
+                            <span class="font-weight-light">Manufacture year:</span> @_listing.Vehicle.ManufactureYear
+                        </p>
+
+                        <div class="card-footer">
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+
+<div class="row mb-0">
+    <div class="col-2">
+        <label> Input discount code</label>
+    </div>
+
+</div>
+
+<div class="row mt-0">
+    <div class="col-2 ml-2 mt-1">
+        <input @bind="_couponCode" type="text" class="form-control ">
+    </div>
+
+    <div class="col-2  mt-1 mb-0">
+        <button @onclick="ApplyDiscountCode" class="btn btn-dark">Apply discount code</button>
+    </div>
+    <div class="col-1"></div>
+
+    @if (!string.IsNullOrEmpty(_qrcode))
+    {
+        <div class="col-2">
+            <img class="img-fluid" src="@_qrcode" alt="QRCode">
+        </div>
+    }
+
+</div>
+
+
+<div class="row">
+    <div class="col-5"></div>
+    <div class="col-3 ml-2 mt-0">
+        <p class="actions">
+            <button @onclick="AddLease" class="btn btn-outline-dark ">@_addButtonText</button>
+            <button @onclick="@(() => _navMgr.NavigateTo("/search/"))" class="btn btn-danger">Cancel</button>
+        </p>
+    </div>
+</div>
+
+
+@if (_errorMessage != "")
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
 }
 
 
 
 
 @code {
+
     [Parameter]
     public int ListingId { get; set; }
+
     [Parameter]
     public DateTime DateFrom { get; set; }
+
     [Parameter]
     public DateTime DateTo { get; set; }
 
     private Listing _listing;
+    private string _couponCode;
     private Customer _customer;
+    private Lease _lease;
 
     private string _errorMessage;
     private Uri _uri;
-    
+
+    private string _qrcode;
+    private string _addButtonText;
+
+    private string _paymentId;
+
+
     protected override async Task OnInitializedAsync()
     {
         _errorMessage = "";
+        _paymentId = "";
+        _addButtonText = "Lease vehicle";
         GetDataFromUrl();
 
         _listing = await _listingService.GetListingById(ListingId);
         _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
+
+        _lease = new Lease
+        {
+            LeasedFrom = DateFrom,
+            LeasedTo = DateTo,
+            Customer = _customer,
+            Listing = _listing
+        };
+
+        _couponCode = string.Empty;
+        try
+        {
+            _lease = await _leaseService.ValidateLeaseAsync(_lease, _couponCode);
+        }
+        catch (Exception e)
+        {
+            _errorMessage = e.Message;
+        }
+
+        await GenerateQrCode();
     }
 
     private void GetDataFromUrl()
@@ -98,12 +245,12 @@
         {
             ListingId = int.Parse(lId);
         }
-        
+
         if (QueryHelpers.ParseQuery(_uri.Query).TryGetValue("DateFrom", out var dFrom))
         {
             DateFrom = DateTime.Parse(dFrom);
         }
-        
+
         if (QueryHelpers.ParseQuery(_uri.Query).TryGetValue("DateTo", out var dTo))
         {
             DateTo = DateTime.Parse(dTo);
@@ -112,33 +259,60 @@
 
     private async Task AddLease()
     {
-        Lease lease = new Lease()
-        {
-            LeasedFrom = DateFrom,
-            LeasedTo = DateTo,
-            Customer = _customer,
-            Listing = _listing
-
-        };
-        
         try
         {
-            await _leaseService.AddLeaseAsync(lease);
-            _navMgr.NavigateTo("/view-rentals/");
+            _addButtonText = "Verifying payment";
+            if (await _mobilePayWebService.ValidatePayment(_paymentId))
+            {
+                _addButtonText = "Payment verified";
+
+                await _leaseService.AddLeaseAsync(_lease);
+                _navMgr.NavigateTo("/view-rentals/");
+
+                return;
+            }
+
+            _addButtonText = "Lease vehicle";
+            _errorMessage = "Payment failed";
         }
         catch (Exception e)
         {
             _errorMessage = e.Message;
         }
-      
-        
-      
-
     }
 
+    private async Task ApplyDiscountCode()
+    {
+        try
+        {
+            _lease = await _leaseService.ValidateLeaseAsync(_lease, _couponCode);
+            _errorMessage = "";
+        }
+        catch (Exception e)
+        {
+            _errorMessage = e.Message;
+        }
     }
-   
 
-    
+    private async Task GenerateQrCode()
+    {
+        //Todo 11/12 by Ion - change the library because is using Bitmap with Graphic which is supported only on Windows.
+        try {
+            await using MemoryStream memoryStream = new();
+            QRCodeGenerator qrGenerator = new();
+            _paymentId = await _mobilePayWebService.CreateNewPayment(_lease.TotalPrice);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(_paymentId, QRCodeGenerator.ECCLevel.Q);
+            QRCode qrCode = new QRCode(qrCodeData);
+
+            using Bitmap qrCodeBitMap = qrCode.GetGraphic(20);
+            qrCodeBitMap.Save(memoryStream, ImageFormat.Png);
+            _qrcode = "data:image/png;base64," + Convert.ToBase64String(memoryStream.ToArray());
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Can not generate the QRCode";
+        }
+    }
 
 
+}

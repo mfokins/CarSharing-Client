@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+
 namespace CarSharing_Client
 {
     public class Startup
@@ -33,6 +34,8 @@ namespace CarSharing_Client
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ILeaseService, LeaseWebService>();
             services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+            services.AddScoped<IMobilePayWebService, MobilePayWebService>();
+            
             
 
             services.AddAuthorization(option =>

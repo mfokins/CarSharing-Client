@@ -6,6 +6,9 @@ namespace CarSharing_Client.Data
 {
     public interface ILeaseService
     {
+
+        Task<Lease> ValidateLeaseAsync(Lease lease, string couponCode);
+        
         Task AddLeaseAsync(Lease lease);
 
         Task CancelLeaseAsync(int id);

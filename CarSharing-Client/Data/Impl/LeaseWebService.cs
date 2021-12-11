@@ -14,14 +14,49 @@ namespace CarSharing_Client.Data.Impl
     public class LeaseWebService : ILeaseService
     {
         private readonly HttpClient _client;
-        private const string Uri = "http://10.154.212.101:8080";
+        //private const string Uri = "http://10.154.212.101:8080";
+        private const string Uri = "http://localhost:8080";
        
 
         public LeaseWebService()
         {
             _client = new HttpClient();
         }
-        
+
+        public async Task<Lease> ValidateLeaseAsync(Lease lease, string couponCode)
+        {
+            string listingAsJson = JsonSerializer.Serialize(lease, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = {new DateTimeConverter()}
+            });
+
+            HttpContent content = new StringContent(listingAsJson,
+                Encoding.UTF8,
+                "application/json"
+            );
+
+            string pathUri = "/leases/coupons/" + (couponCode != "" ? $"{couponCode}" : "default");
+
+            HttpResponseMessage responseMessage = await _client.PostAsync(Uri + pathUri, content);
+            
+            var resultString = await responseMessage.Content.ReadAsStringAsync();
+            
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
+            }
+            
+            var result = JsonSerializer.Deserialize<Lease>(resultString, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            return result;
+            
+        }
+
         public async Task AddLeaseAsync(Lease lease)
         {
             string listingAsJson = JsonSerializer.Serialize(lease, new JsonSerializerOptions()
