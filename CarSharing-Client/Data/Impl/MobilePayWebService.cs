@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -18,8 +19,12 @@ namespace CarSharing_Client.Data.Impl
 
         public async Task<string> CreateNewPayment(decimal amount)
         {
+            NumberFormatInfo nfi = new NumberFormatInfo();
+            nfi.NumberDecimalSeparator = ".";
+            string x = amount.ToString(nfi);
+            
             HttpResponseMessage responseMessage =
-                await _client.GetAsync(Uri + $"/mobilepay?amount={amount}");
+                await _client.GetAsync(Uri + $"/mobilepay?amount={x}");
             
             if (!responseMessage.IsSuccessStatusCode)
             {
