@@ -50,11 +50,65 @@
     </div>
 }
 
-@if (_listings != null)
+@if (_listingsToShow != null)
 {
     <hr/>
     <div class="row">
-        @foreach (var listing in _listings)
+    <div class="form-group col-md-2">
+        <label for="">Transmition</label>
+        <select class="form-control" @oninput="FilterByTransmission">
+            <option value="">Any</option>
+            <option value="Automatic">Automatic</option>
+            <option value="Manual">Manual</option>
+        </select>
+    </div>
+
+    <div class="form-group col-md-2">
+        <label for="">Fuel Type</label>
+        <select class="form-control" @oninput="FilterByFuelType">
+            <option value="">Any</option>
+            <option value="Petrol">Petrol</option>
+            <option value="Diesel">Diesel</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Electric">Electric</option>
+            <option value="Hydrogen">Hydrogen</option>
+        </select>
+    </div>
+
+    <div class="form-group col-md-2">
+        <label >Car type</label>
+        <select class="form-control" @oninput="FilterByCarType">
+            <option value="">Any</option>
+            <option value="Sedan">Sedan</option>
+            <option value="SUV">SUV</option>
+            <option value="Coupe">Coupe</option>
+            <option value="HatchBack">HatchBack</option>
+            <option value="Pickup Truck">Pickup Truck</option>
+            <option value="Van">Van</option>
+        </select>
+    </div>
+
+    <div class="form-group col-md-2">
+        <label >Number of seats</label>
+        <select class="form-control" @oninput="FilterBySeats">
+            <option value="">Any</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+        </select>
+    </div>
+    
+    </div> 
+
+
+    <div class="row">
+
+        @foreach (var listing in _listingsToShow)
         {
             <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
                 <div class="card text-center">
@@ -108,7 +162,10 @@
         DateFrom = DateTime.UtcNow
     };
 
+    private FilterParams _filterParams = new();
+
     private IList<Listing> _listings;
+    private IList<Listing> _listingsToShow;
     private string _cacheKey;
 
     protected override void OnInitialized()
@@ -123,6 +180,63 @@
         }
     }
 
+    private void FilterByTransmission(ChangeEventArgs evt)
+    {
+        _filterParams.Transmission = null;
+        if (evt.Value != null && evt.Value?.ToString() != "")
+        {
+            _filterParams.Transmission = evt.Value?.ToString();
+        }
+
+        ExecuteFilters();
+    }
+
+    private void FilterByFuelType(ChangeEventArgs evt)
+    {
+        _filterParams.FuelType = null;
+        if (evt.Value != null && evt.Value?.ToString() != "")
+        {
+            _filterParams.FuelType = evt.Value?.ToString();
+        }
+
+        ExecuteFilters();
+    }
+
+    private void FilterByCarType(ChangeEventArgs evt)
+    {
+        _filterParams.CarType = null;
+        if (evt.Value != null && evt.Value?.ToString() != "")
+        {
+            _filterParams.CarType = evt.Value?.ToString();
+        }
+
+        ExecuteFilters();
+    }
+
+    private void FilterBySeats(ChangeEventArgs evt)
+    {
+        _filterParams.NumberOfSeats = null;
+        if (evt.Value != null && evt.Value?.ToString() != "")
+        {
+            _filterParams.NumberOfSeats = Int32.Parse(evt.Value?.ToString()!);
+        }
+        ExecuteFilters();
+    }
+    private void ExecuteFilters()
+    {
+    // _filterParams.Transmission = "Manual";
+    // _filterParams.CarType = "HatchBack";
+
+    // Vehicle testVehicle = _listings.First().Vehicle;
+
+
+        _listingsToShow = _listings.Where(lis =>
+            (_filterParams.Transmission != null && lis.Vehicle.Transmission == _filterParams.Transmission || _filterParams.Transmission == null) &&
+            (_filterParams.CarType != null && lis.Vehicle.Type == _filterParams.CarType || _filterParams.CarType == null) &&
+            (_filterParams.FuelType != null && lis.Vehicle.FuelType == _filterParams.FuelType || _filterParams.FuelType == null) &&
+            (_filterParams.NumberOfSeats != null && lis.Vehicle.Seats == _filterParams.NumberOfSeats || _filterParams.NumberOfSeats == null)
+            ).ToList();
+    }
 
     private async Task SearchForListing()
     {
@@ -153,6 +267,7 @@
             try
             {
                 _listings = await _listingService.GetListingsAsync(_params.Location, _params.DateFrom.Value, _params.DateTo.Value);
+                _listingsToShow = _listings;
             }
             catch (Exception e)
             {
@@ -160,5 +275,7 @@
             }
         }
     }
+
+
 
 }
