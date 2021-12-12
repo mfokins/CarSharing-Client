@@ -14,6 +14,7 @@ namespace CarSharing_Client.Data
         Task<Vehicle> GetVehicleAsync(string licenseNo);
 
         Task<IList<Vehicle>> GetVehiclesByOwnerCprAsync(string cpr);
+        Task<IList<Vehicle>> GetVehiclesWaitingForApproval();
 
     }
 }

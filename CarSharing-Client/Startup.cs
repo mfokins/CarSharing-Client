@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using CarSharing_Client.Authentication;
 using CarSharing_Client.Data;
 using CarSharing_Client.Data.Impl;
@@ -42,6 +43,22 @@ namespace CarSharing_Client
             {
                 option.AddPolicy("MustBeLoggedIn", a =>
                     a.RequireAuthenticatedUser());
+                
+                option.AddPolicy("MustBeCustomer", a =>
+                    a.RequireAuthenticatedUser().RequireAssertion(context =>
+                    {
+                        var levelClaim = context.User.FindFirst(claim => claim.Type.Equals("AccessLevel"));
+                        if (levelClaim == null) return false;
+                        return int.Parse(levelClaim.Value) == 0;
+                    }));
+                
+                option.AddPolicy("MustBeAdmin", a =>
+                    a.RequireAuthenticatedUser().RequireAssertion(context =>
+                    {
+                        var levelClaim = context.User.FindFirst(claim => claim.Type.Equals("AccessLevel"));
+                        if (levelClaim == null) return false;
+                        return int.Parse(levelClaim.Value) == 3;
+                    }));
             });
         }
 

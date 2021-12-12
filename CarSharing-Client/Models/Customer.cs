@@ -12,5 +12,7 @@ namespace CarSharing_Client.Models
         [StringLength(255, MinimumLength = 3)]
         public string LastName { get; set; }
         public string PhoneNo { get; set; }
+        
+        public int AccessLevel { get; set; } // admin lvl 3
     }
 }

@@ -99,5 +99,24 @@ namespace CarSharing_Client.Data.Impl
             });
             return vehicles;
         }
+
+        public async Task<IList<Vehicle>> GetVehiclesWaitingForApproval()
+        {
+            HttpResponseMessage responseMessage = await _client.GetAsync(Uri + $"/queue/vehicles");
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
+            }
+
+            string result = await responseMessage.Content.ReadAsStringAsync();
+            
+            IList<Vehicle> vehicles = JsonSerializer.Deserialize<IList<Vehicle>>(result, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            return vehicles;
+        }
     }
 }
