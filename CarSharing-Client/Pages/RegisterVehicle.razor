@@ -15,8 +15,8 @@
 
 
 @code {
-    
-    private string _errorMessage="";
+
+    private string _errorMessage = "";
 
     private readonly Vehicle _car = new()
     {
@@ -24,9 +24,9 @@
         FuelType = "Petrol",
         Seats = 5,
         Type = "Sedan",
-        
+        IsApproved = false
     };
-    
+
     private async Task AddVehicle()
     {
         try
@@ -34,20 +34,24 @@
             _errorMessage = "";
             _car.Owner = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
             await _vehicleService.AddVehicleAsync(_car);
-            
-            _memoryCache.TryGetValue(_car.Owner.Cpr, out IList<Vehicle> cacheVehicles);
-            cacheVehicles.Add(_car);
-        
+
+            if (_memoryCache.TryGetValue(_car.Owner.Cpr, out IList<Vehicle> cacheVehicles))
+            {
+                cacheVehicles.Add(_car);
+            }
+
+
             _navigationManager.NavigateTo("/view-vehicles");
         }
         catch (Exception e)
         {
             _errorMessage = e.Message;
-        } 
+        }
     }
 
     private void Cancel()
     {
         _navigationManager.NavigateTo("/view-vehicles");
     }
+
 }

@@ -172,7 +172,7 @@
         DateFrom = DateTime.UtcNow
     };
 
-    private FilterParams _filterParams = new();
+    private readonly FilterParams _filterParams = new();
 
     private IList<Listing> _listings;
     private IList<Listing> _listingsToShow;
@@ -228,18 +228,12 @@
         _filterParams.NumberOfSeats = null;
         if (evt.Value != null && evt.Value?.ToString() != "")
         {
-            _filterParams.NumberOfSeats = Int32.Parse(evt.Value?.ToString()!);
+            _filterParams.NumberOfSeats = int.Parse(evt.Value?.ToString()!);
         }
         ExecuteFilters();
     }
     private void ExecuteFilters()
     {
-    // _filterParams.Transmission = "Manual";
-    // _filterParams.CarType = "HatchBack";
-
-    // Vehicle testVehicle = _listings.First().Vehicle;
-
-
         _listingsToShow = _listings.Where(lis =>
             (_filterParams.Transmission != null && lis.Vehicle.Transmission == _filterParams.Transmission || _filterParams.Transmission == null) &&
             (_filterParams.CarType != null && lis.Vehicle.Type == _filterParams.CarType || _filterParams.CarType == null) &&
