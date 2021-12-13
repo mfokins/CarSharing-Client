@@ -1,0 +1,135 @@
+@page "/approve-vehicles"
+@using CarSharing_Client.Models
+@using CarSharing_Client.Data
+
+@inject IVehicleService _vehicleService;
+
+<h3>ApproveVehicles</h3>
+<hr/>
+<div class="row p-1">
+    @if (_vehicles != null)
+    {
+        foreach (var vehicle in _vehicles)
+        {
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3 ">
+                <div class="card text-center">
+                    <div class="member-card">
+
+                        <div class="card-header p-3">
+                            <div class="d-flex justify-content-around mt-2">
+                                <div class="d-flex flex-column">
+                                    <div class="m-auto">
+                                        <span class="iconify" data-icon="iconoir:profile-circled" data-width="50" data-height="50"></span>
+                                        <p class="text-muted">Owner</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <div class="my-auto">
+                                        <h4>@vehicle.Owner.FirstName @vehicle.Owner.LastName </h4>
+                                        <p>PhoneNo: @vehicle.Owner.PhoneNo</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr/>
+                            <div>
+                                <span class="iconify " data-icon="fluent:vehicle-car-profile-ltr-16-filled" data-width="30" data-height="30"></span>
+                                <h4>@vehicle.Brand @vehicle.Model </h4>
+                                <p>
+                                    <strong>Licence number: @vehicle.LicenseNo</strong>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="card-text col-6">
+                                    <span class="font-weight-light">Licence no: </span>
+                                    <p>
+                                        <strong> @vehicle.LicenseNo </strong>
+                                    </p>
+                                </div>
+
+                                <div class="card-text col-6">
+                                    <span class="font-weight-light">Fuel: </span>
+                                    <p>
+                                        <strong> @vehicle.FuelType </strong>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="card-text col-6">
+                                    <span class="font-weight-light">Transmition: </span>
+                                    <p>
+                                        <strong> @vehicle.Transmission </strong>
+                                    </p>
+                                </div>
+
+                                <div class="card-text col-6">
+                                    <span class="font-weight-light">Seats: </span>
+                                    <p>
+                                        <strong> @vehicle.Seats </strong>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="card-text col-6">
+                                    <span class="font-weight-light">Vehicle type: </span>
+                                    <p>
+                                        <strong> @vehicle.Type </strong>
+                                    </p>
+                                </div>
+
+                                <div class="card-text col-6">
+                                    <span class="font-weight-light">Manufacture year: </span>
+                                    <p>
+                                        <strong> @vehicle.ManufactureYear </strong>
+                                    </p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="d-flex flex-row justify-content-around">
+                            <p class="card-text my-auto">
+                                <button @onclick="@(async () => await ApproveVehicle(vehicle))" class="btn btn-success">Approve</button>
+                            </p>
+
+                            <p class="card-text my-auto">
+                                <button @onclick="@(async () => await RejectVehicle(vehicle))" class="btn btn-danger">Reject</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+
+@code {
+    private IList<Vehicle> _vehicles = new List<Vehicle>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _vehicles = await _vehicleService.GetVehiclesWaitingForApproval();
+    }
+
+
+    private async Task ApproveVehicle(Vehicle vehicle)
+    {
+        vehicle.IsApproved = true;
+        await _vehicleService.UpdateVehicleAsync(vehicle);
+        _vehicles.Remove(vehicle);
+    }
+
+    private async Task RejectVehicle(Vehicle vehicle)
+    {
+        await _vehicleService.RemoveVehicleAsync(vehicle.LicenseNo);
+        _vehicles.Remove(vehicle);
+    }
+
+}

@@ -15,18 +15,18 @@
 
 
 @code {
-    
-    private string _errorMessage="";
+
+    private string _errorMessage = "";
 
     private readonly Vehicle _car = new()
     {
-        Transmission = "Automatic",
-        FuelType = "Petrol",
+        Transmission = Vehicle.VehicleTransmission.Automatic,
+        FuelType = Vehicle.VehicleFuelType.Petrol,
         Seats = 5,
-        Type = "Sedan",
-        
+        Type = Vehicle.VehicleType.Sedan,
+        IsApproved = false
     };
-    
+
     private async Task AddVehicle()
     {
         try
@@ -34,20 +34,24 @@
             _errorMessage = "";
             _car.Owner = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
             await _vehicleService.AddVehicleAsync(_car);
-            
-            _memoryCache.TryGetValue(_car.Owner.Cpr, out IList<Vehicle> cacheVehicles);
-            cacheVehicles.Add(_car);
-        
+
+            if (_memoryCache.TryGetValue(_car.Owner.Cpr, out IList<Vehicle> cacheVehicles))
+            {
+                cacheVehicles.Add(_car);
+            }
+
+
             _navigationManager.NavigateTo("/view-vehicles");
         }
         catch (Exception e)
         {
             _errorMessage = e.Message;
-        } 
+        }
     }
 
     private void Cancel()
     {
         _navigationManager.NavigateTo("/view-vehicles");
     }
+
 }

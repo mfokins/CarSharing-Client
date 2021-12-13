@@ -10,7 +10,6 @@
 
 <h2 class="p-2">Search a car</h2>
 
-
 <EditForm Model="@_params" OnValidSubmit="@SearchForListing">
     <div class="card card-registration rounded col-8 m-3">
         <div class="row p-1">
@@ -43,6 +42,15 @@
     </div>
 </EditForm>
 
+<AuthorizeView Policy="MustBeLoggedIn">
+    <NotAuthorized>
+        <hr/>
+        <div class="alert alert-warning col-5 ml-2" role="alert">
+            To rent a vehicle, please first login.
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
 @if (_errorMessage != "")
 {
     <div class="alert alert-danger col-5 ml-2" role="alert">
@@ -50,11 +58,65 @@
     </div>
 }
 
-@if (_listings != null)
+@if (_listingsToShow != null)
 {
     <hr/>
     <div class="row">
-        @foreach (var listing in _listings)
+        <div class="form-group col-md-2">
+            <label for="">Transmition</label>
+            <select class="form-control" @oninput="FilterByTransmission">
+                <option value="">Any</option>
+                <option value="@Vehicle.VehicleTransmission.Automatic">@Vehicle.VehicleTransmission.Automatic</option>
+                <option value="@Vehicle.VehicleTransmission.Manual">@Vehicle.VehicleTransmission.Manual</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="">Fuel Type</label>
+            <select class="form-control" @oninput="FilterByFuelType">
+                <option value="">Any</option>
+                <option value="@Vehicle.VehicleFuelType.Petrol">@Vehicle.VehicleFuelType.Petrol</option>
+                <option value="@Vehicle.VehicleFuelType.Diesel">@Vehicle.VehicleFuelType.Diesel</option>
+                <option value="@Vehicle.VehicleFuelType.Hybrid">@Vehicle.VehicleFuelType.Hybrid</option>
+                <option value="@Vehicle.VehicleFuelType.Electric">@Vehicle.VehicleFuelType.Electric</option>
+                <option value="@Vehicle.VehicleFuelType.Hydrogen">@Vehicle.VehicleFuelType.Hydrogen</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label >Car type</label>
+            <select class="form-control" @oninput="FilterByCarType">
+                <option value="">Any</option>
+                <option value="@Vehicle.VehicleType.Sedan">@Vehicle.VehicleType.Sedan</option>
+                <option value="@Vehicle.VehicleType.Suv">@Vehicle.VehicleType.Suv</option>
+                <option value="@Vehicle.VehicleType.Coupe">@Vehicle.VehicleType.Coupe</option>
+                <option value="@Vehicle.VehicleType.Hatchback">@Vehicle.VehicleType.Hatchback</option>
+                <option value="@Vehicle.VehicleType.PickupTruck">@Vehicle.VehicleType.PickupTruck</option>
+                <option value="@Vehicle.VehicleType.Van">@Vehicle.VehicleType.Van</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label >Number of seats</label>
+            <select class="form-control" @oninput="FilterBySeats">
+                <option value="">Any</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+            </select>
+        </div>
+
+    </div>
+
+
+    <div class="row">
+
+        @foreach (var listing in _listingsToShow)
         {
             <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
                 <div class="card text-center">
@@ -87,12 +149,14 @@
 
 
                         </div>
-                        <div class="card-footer">
-                            <p class="card-text">
-                                <Button @onclick="@(() => _navigationManager.NavigateTo($"/create-lease/?listingId={listing.Id}&DateFrom={_params.DateFrom}&DateTo={_params.DateTo}"))" class="btn btn-dark">Open listing</Button>
-                            </p>
+                        <AuthorizeView Policy="MustBeCustomer">
+                            <div class="card-footer">
+                                <p class="card-text">
+                                    <Button @onclick="@(() => _navigationManager.NavigateTo($"/create-lease/?listingId={listing.Id}&DateFrom={_params.DateFrom}&DateTo={_params.DateTo}"))" class="btn btn-dark">Open listing</Button>
+                                </p>
 
-                        </div>
+                            </div>
+                        </AuthorizeView>
                     </div>
                 </div>
             </div>
@@ -103,12 +167,15 @@
 @code {
     private string _errorMessage = "";
 
-    private SearchParams _params = new()
+    private readonly SearchParams _params = new()
     {
         DateFrom = DateTime.UtcNow
     };
 
+    private readonly FilterParams _filterParams = new();
+
     private IList<Listing> _listings;
+    private IList<Listing> _listingsToShow;
     private string _cacheKey;
 
     protected override void OnInitialized()
@@ -123,6 +190,58 @@
         }
     }
 
+    private void FilterByTransmission(ChangeEventArgs evt)
+    {
+        _filterParams.Transmission = null;
+        if (evt.Value != null && evt.Value?.ToString() != "")
+        {
+            _filterParams.Transmission = evt.Value?.ToString();
+        }
+
+        ExecuteFilters();
+    }
+
+    private void FilterByFuelType(ChangeEventArgs evt)
+    {
+        _filterParams.FuelType = null;
+        if (evt.Value != null && evt.Value?.ToString() != "")
+        {
+            _filterParams.FuelType = evt.Value?.ToString();
+        }
+
+        ExecuteFilters();
+    }
+
+    private void FilterByCarType(ChangeEventArgs evt)
+    {
+        _filterParams.CarType = null;
+        if (evt.Value != null && evt.Value?.ToString() != "")
+        {
+            _filterParams.CarType = evt.Value?.ToString();
+        }
+
+        ExecuteFilters();
+    }
+
+    private void FilterBySeats(ChangeEventArgs evt)
+    {
+        _filterParams.NumberOfSeats = null;
+        if (evt.Value != null && evt.Value?.ToString() != "")
+        {
+            _filterParams.NumberOfSeats = int.Parse(evt.Value?.ToString()!);
+        }
+        ExecuteFilters();
+    }
+
+    private void ExecuteFilters()
+    {
+        _listingsToShow = _listings.Where(lis =>
+            (_filterParams.Transmission != null && lis.Vehicle.Transmission == _filterParams.Transmission || _filterParams.Transmission == null) &&
+            (_filterParams.CarType != null && lis.Vehicle.Type == _filterParams.CarType || _filterParams.CarType == null) &&
+            (_filterParams.FuelType != null && lis.Vehicle.FuelType == _filterParams.FuelType || _filterParams.FuelType == null) &&
+            (_filterParams.NumberOfSeats != null && lis.Vehicle.Seats == _filterParams.NumberOfSeats || _filterParams.NumberOfSeats == null)
+            ).ToList();
+    }
 
     private async Task SearchForListing()
     {
@@ -153,6 +272,7 @@
             try
             {
                 _listings = await _listingService.GetListingsAsync(_params.Location, _params.DateFrom.Value, _params.DateTo.Value);
+                _listingsToShow = _listings;
             }
             catch (Exception e)
             {
@@ -160,5 +280,7 @@
             }
         }
     }
+
+
 
 }
