@@ -62,56 +62,56 @@
 {
     <hr/>
     <div class="row">
-    <div class="form-group col-md-2">
-        <label for="">Transmition</label>
-        <select class="form-control" @oninput="FilterByTransmission">
-            <option value="">Any</option>
-            <option value="Automatic">Automatic</option>
-            <option value="Manual">Manual</option>
-        </select>
-    </div>
+        <div class="form-group col-md-2">
+            <label for="">Transmition</label>
+            <select class="form-control" @oninput="FilterByTransmission">
+                <option value="">Any</option>
+                <option value="@Vehicle.VehicleTransmission.Automatic">@Vehicle.VehicleTransmission.Automatic</option>
+                <option value="@Vehicle.VehicleTransmission.Manual">@Vehicle.VehicleTransmission.Manual</option>
+            </select>
+        </div>
 
-    <div class="form-group col-md-2">
-        <label for="">Fuel Type</label>
-        <select class="form-control" @oninput="FilterByFuelType">
-            <option value="">Any</option>
-            <option value="Petrol">Petrol</option>
-            <option value="Diesel">Diesel</option>
-            <option value="Hybrid">Hybrid</option>
-            <option value="Electric">Electric</option>
-            <option value="Hydrogen">Hydrogen</option>
-        </select>
-    </div>
+        <div class="form-group col-md-2">
+            <label for="">Fuel Type</label>
+            <select class="form-control" @oninput="FilterByFuelType">
+                <option value="">Any</option>
+                <option value="@Vehicle.VehicleFuelType.Petrol">@Vehicle.VehicleFuelType.Petrol</option>
+                <option value="@Vehicle.VehicleFuelType.Diesel">@Vehicle.VehicleFuelType.Diesel</option>
+                <option value="@Vehicle.VehicleFuelType.Hybrid">@Vehicle.VehicleFuelType.Hybrid</option>
+                <option value="@Vehicle.VehicleFuelType.Electric">@Vehicle.VehicleFuelType.Electric</option>
+                <option value="@Vehicle.VehicleFuelType.Hydrogen">@Vehicle.VehicleFuelType.Hydrogen</option>
+            </select>
+        </div>
 
-    <div class="form-group col-md-2">
-        <label >Car type</label>
-        <select class="form-control" @oninput="FilterByCarType">
-            <option value="">Any</option>
-            <option value="Sedan">Sedan</option>
-            <option value="SUV">SUV</option>
-            <option value="Coupe">Coupe</option>
-            <option value="HatchBack">HatchBack</option>
-            <option value="Pickup Truck">Pickup Truck</option>
-            <option value="Van">Van</option>
-        </select>
-    </div>
+        <div class="form-group col-md-2">
+            <label >Car type</label>
+            <select class="form-control" @oninput="FilterByCarType">
+                <option value="">Any</option>
+                <option value="@Vehicle.VehicleType.Sedan">@Vehicle.VehicleType.Sedan</option>
+                <option value="@Vehicle.VehicleType.Suv">@Vehicle.VehicleType.Suv</option>
+                <option value="@Vehicle.VehicleType.Coupe">@Vehicle.VehicleType.Coupe</option>
+                <option value="@Vehicle.VehicleType.Hatchback">@Vehicle.VehicleType.Hatchback</option>
+                <option value="@Vehicle.VehicleType.PickupTruck">@Vehicle.VehicleType.PickupTruck</option>
+                <option value="@Vehicle.VehicleType.Van">@Vehicle.VehicleType.Van</option>
+            </select>
+        </div>
 
-    <div class="form-group col-md-2">
-        <label >Number of seats</label>
-        <select class="form-control" @oninput="FilterBySeats">
-            <option value="">Any</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-        </select>
+        <div class="form-group col-md-2">
+            <label >Number of seats</label>
+            <select class="form-control" @oninput="FilterBySeats">
+                <option value="">Any</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+            </select>
+        </div>
+
     </div>
-    
-    </div> 
 
 
     <div class="row">
@@ -232,6 +232,7 @@
         }
         ExecuteFilters();
     }
+
     private void ExecuteFilters()
     {
         _listingsToShow = _listings.Where(lis =>

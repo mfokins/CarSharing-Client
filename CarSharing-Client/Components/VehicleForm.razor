@@ -23,12 +23,12 @@
         <div class="form-group col-md-5">
             <label >Car type</label>
             <select @bind="Vehicle.Type" class="form-control">
-                <option value="Sedan">Sedan</option>
-                <option value="SUV">SUV</option>
-                <option value="Coupe">Coupe</option>
-                <option value="HatchBack">HatchBack</option>
-                <option value="Pickup Truck">Pickup Truck</option>
-                <option value="Van">Van</option>
+                <option value="@Vehicle.VehicleType.Sedan">@Vehicle.VehicleType.Sedan</option>
+                <option value="@Vehicle.VehicleType.Suv">@Vehicle.VehicleType.Suv</option>
+                <option value="@Vehicle.VehicleType.Coupe">@Vehicle.VehicleType.Coupe</option>
+                <option value="@Vehicle.VehicleType.Hatchback">@Vehicle.VehicleType.Hatchback</option>
+                <option value="@Vehicle.VehicleType.PickupTruck">@Vehicle.VehicleType.PickupTruck</option>
+                <option value="@Vehicle.VehicleType.Van">@Vehicle.VehicleType.Van</option>
             </select>
 
         </div>
@@ -39,19 +39,19 @@
         <div class="form-group col-md-5">
             <label for="">Transmition</label>
             <select class="form-control" @bind="Vehicle.Transmission">
-                <option value="Automatic">Automatic</option>
-                <option value="Manual">Manual</option>
+                <option value="@Vehicle.VehicleTransmission.Automatic">@Vehicle.VehicleTransmission.Automatic</option>
+                <option value="@Vehicle.VehicleTransmission.Manual">@Vehicle.VehicleTransmission.Manual</option>
             </select>
         </div>
 
         <div class="form-group col-md-5">
             <label for="">Fuel Type</label>
             <select @bind="Vehicle.FuelType" class="form-control">
-                <option value="Petrol">Petrol</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Electric">Electric</option>
-                <option value="Hydrogen">Hydrogen</option>
+                <option value="@Vehicle.VehicleFuelType.Petrol">@Vehicle.VehicleFuelType.Petrol</option>
+                <option value="@Vehicle.VehicleFuelType.Diesel">@Vehicle.VehicleFuelType.Diesel</option>
+                <option value="@Vehicle.VehicleFuelType.Hybrid">@Vehicle.VehicleFuelType.Hybrid</option>
+                <option value="@Vehicle.VehicleFuelType.Electric">@Vehicle.VehicleFuelType.Electric</option>
+                <option value="@Vehicle.VehicleFuelType.Hydrogen">@Vehicle.VehicleFuelType.Hydrogen</option>
             </select>
         </div>
     </div>
