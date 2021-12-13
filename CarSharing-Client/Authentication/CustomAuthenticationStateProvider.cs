@@ -75,7 +75,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider {
     private ClaimsIdentity SetupClaimsForAccount(Customer customer) {
         List<Claim> claims = new List<Claim>();
         claims.Add(new Claim(ClaimTypes.Name, customer.FirstName));
-        //claims.Add(new Claim("Level", customer.CredentialLevel.ToString()));
+        claims.Add(new Claim("AccessLevel", customer.AccessLevel.ToString()));
 
         ClaimsIdentity identity = new ClaimsIdentity(claims, "apiauth_type");
         return identity;

@@ -23,6 +23,9 @@ namespace CarSharing_Client.Models
         [Required] 
         public double? Mileage { get; set; }
         public Customer Owner { get; set; }
+        
+        // is approved by the admin
+        public bool IsApproved { get; set; }
     }
 }
 

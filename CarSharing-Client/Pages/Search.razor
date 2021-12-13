@@ -10,7 +10,6 @@
 
 <h2 class="p-2">Search a car</h2>
 
-
 <EditForm Model="@_params" OnValidSubmit="@SearchForListing">
     <div class="card card-registration rounded col-8 m-3">
         <div class="row p-1">
@@ -42,6 +41,15 @@
         <ValidationSummary/>
     </div>
 </EditForm>
+
+<AuthorizeView Policy="MustBeLoggedIn">
+    <NotAuthorized>
+        <hr/>
+        <div class="alert alert-warning col-5 ml-2" role="alert">
+            To rent a vehicle, please first login.
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 
 @if (_errorMessage != "")
 {
@@ -141,12 +149,14 @@
 
 
                         </div>
-                        <div class="card-footer">
-                            <p class="card-text">
-                                <Button @onclick="@(() => _navigationManager.NavigateTo($"/create-lease/?listingId={listing.Id}&DateFrom={_params.DateFrom}&DateTo={_params.DateTo}"))" class="btn btn-dark">Open listing</Button>
-                            </p>
+                        <AuthorizeView Policy="MustBeCustomer">
+                            <div class="card-footer">
+                                <p class="card-text">
+                                    <Button @onclick="@(() => _navigationManager.NavigateTo($"/create-lease/?listingId={listing.Id}&DateFrom={_params.DateFrom}&DateTo={_params.DateTo}"))" class="btn btn-dark">Open listing</Button>
+                                </p>
 
-                        </div>
+                            </div>
+                        </AuthorizeView>
                     </div>
                 </div>
             </div>
@@ -157,7 +167,7 @@
 @code {
     private string _errorMessage = "";
 
-    private SearchParams _params = new()
+    private readonly SearchParams _params = new()
     {
         DateFrom = DateTime.UtcNow
     };
