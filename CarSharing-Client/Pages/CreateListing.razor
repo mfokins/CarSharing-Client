@@ -14,7 +14,8 @@
     private readonly Listing _listing = new()
     {
         ListedDate = DateTime.UtcNow,
-        DateFrom = DateTime.UtcNow
+        DateFrom = DateTime.UtcNow,
+        DateTo = null
     };
     
     [Parameter]
@@ -29,6 +30,11 @@
         try
         {
             _errorMessage = "";
+            if (_listing.DateTo == null)
+            {
+                throw new Exception("Please provide the 'Date to'.");
+            }
+            
             await _listingService.AddListingAsync(_listing);
             _navigationManager.NavigateTo("/view-vehicles");
         }

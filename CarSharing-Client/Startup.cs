@@ -38,7 +38,6 @@ namespace CarSharing_Client
             services.AddScoped<IMobilePayWebService, MobilePayWebService>();
             
             
-
             services.AddAuthorization(option =>
             {
                 option.AddPolicy("MustBeLoggedIn", a =>

@@ -6,5 +6,6 @@ namespace CarSharing_Client.Data
     {
         Task<string> CreateNewPayment(decimal amount);
         Task<bool> ValidatePayment(string paymentId);
+        Task<string> GenerateQrCode(int qrcodeWidth, string text);
     }
 }

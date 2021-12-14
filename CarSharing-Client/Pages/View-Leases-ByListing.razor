@@ -44,12 +44,12 @@
     
     private async Task CancelLeaseAsync(int leaseId)
     {
-        await _leaseService.CancelLeaseAsync(leaseId);
         Lease lease = _leases.FirstOrDefault(l => l.Id == leaseId);
         if (lease != null)
         {
             lease.Canceled = true;
         }
+        await _leaseService.CancelLeaseAsync(leaseId);
     }
 
     private void Back()

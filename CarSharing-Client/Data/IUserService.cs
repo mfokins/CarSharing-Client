@@ -6,5 +6,6 @@ namespace CarSharing_Client.Data
     public interface IUserService
     {
         public Task<Customer> ValidateCustomer(string username, string password);
+        public Task RegisterCustomer(Account account);
     }
 }

@@ -4,6 +4,7 @@
 @using CarSharing_Client.Components
 @using CarSharing_Client.Authentication
 @using Microsoft.Extensions.Caching.Memory
+@using System.Text.RegularExpressions
 @inject IVehicleService _vehicleService;
 @inject NavigationManager _navigationManager; 
 @inject AuthenticationStateProvider _authenticationStateProvider
@@ -32,14 +33,22 @@
         try
         {
             _errorMessage = "";
+            if ( !Regex.IsMatch(_car.LicenseNo, "^[A-Z]{2}\\d{5}$"))
+            {
+                throw new Exception("Invalid license number format. Please use the format 'AA11222'");
+            }
+            
             _car.Owner = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
+            if (_car.Owner == null)
+            {
+                throw new Exception("Error occured. Please try later.");
+            }
             await _vehicleService.AddVehicleAsync(_car);
-
-            if (_memoryCache.TryGetValue(_car.Owner.Cpr, out IList<Vehicle> cacheVehicles))
+            
+            if (_memoryCache.TryGetValue("vehicles/" + _car.Owner.Cpr, out IList<Vehicle> cacheVehicles))
             {
                 cacheVehicles.Add(_car);
             }
-
 
             _navigationManager.NavigateTo("/view-vehicles");
         }
