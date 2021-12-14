@@ -5,8 +5,4 @@
         <RootNamespace>CarSharing_Client</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="QRCoder" Version="1.4.2" />
-    </ItemGroup>
-
 </Project>
