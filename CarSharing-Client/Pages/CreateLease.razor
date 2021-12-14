@@ -150,11 +150,12 @@
     </div>
     <div class="col-1"></div>
 
-    @if (!string.IsNullOrEmpty(_qrcode))
+    @if (!string.IsNullOrEmpty(_qrcodeSource))
     {
-        <div class="col-2">
-            <img class="img-fluid" src="@_qrcode" alt="QRCode">
-        </div>
+        <img 
+            style="opacity: @(_displayQr? 1 : 0); -webkit-user-select:none; display:block;"
+            src="@("data:image/png;base64," + _qrcodeSource)"
+            alt="MobilePay QR Code">
     }
 
 </div>
@@ -164,8 +165,8 @@
     <div class="col-5"></div>
     <div class="col-3 ml-2 mt-0">
         <p class="actions">
-            <button @onclick="AddLease" class="btn btn-outline-dark ">@_addButtonText</button>
-            <button @onclick="@(() => _navMgr.NavigateTo("/search/"))" class="btn btn-danger">Cancel</button>
+            <button @onclick="AddLease" disabled="@(_displayQr)" class="btn btn-outline-dark ">@_addButtonText</button>
+            <button  style="opacity: @(_displayQr? 0 : 1);" @onclick="@(() => _navMgr.NavigateTo("/search/"))" class="btn btn-danger">Cancel</button>
         </p>
     </div>
 </div>
@@ -200,16 +201,17 @@
     private string _errorMessage;
     private Uri _uri;
 
-    private string _qrcode;
+    private string _paymentId = "";
+    private string _qrcodeSource = "";
+    private bool _displayQr;
+    
     private string _addButtonText;
-
-    private string _paymentId;
 
 
     protected override async Task OnInitializedAsync()
     {
         _errorMessage = "";
-        _paymentId = "";
+        _displayQr = false;
         _addButtonText = "Rent vehicle";
         GetDataFromUrl();
 
@@ -233,6 +235,9 @@
         {
             _errorMessage = e.Message;
         }
+        
+        _paymentId = await _mobilePayWebService.CreateNewPayment(_lease.TotalPrice);
+        await GenerateQrCode(200, _paymentId);
     }
 
     private void GetDataFromUrl()
@@ -257,22 +262,21 @@
 
     private async Task AddLease()
     {
-        var task = GenerateQrCode();
-        task.Wait();
-        
         try
         {
+            _displayQr = true;
+            
             _addButtonText = "Verifying payment";
             if (await _mobilePayWebService.ValidatePayment(_paymentId))
             {
                 _addButtonText = "Payment verified";
-
+            
                 await _leaseService.AddLeaseAsync(_lease);
                 _navMgr.NavigateTo("/view-rentals/");
-
+            
                 return;
             }
-
+            
             _addButtonText = "Rent vehicle";
             _errorMessage = "Payment failed";
         }
@@ -295,19 +299,11 @@
         }
     }
 
-    private async Task GenerateQrCode()
+    private async Task GenerateQrCode(int qrCodeWidth, string text)
     {
-        //Todo 11/12 by Ion - change the library because is using Bitmap with Graphic which is supported only on Windows.
-        try {
-            await using MemoryStream memoryStream = new();
-            QRCodeGenerator qrGenerator = new();
-            _paymentId = await _mobilePayWebService.CreateNewPayment(_lease.TotalPrice);
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(_paymentId, QRCodeGenerator.ECCLevel.Q);
-            QRCode qrCode = new QRCode(qrCodeData);
-
-            using Bitmap qrCodeBitMap = qrCode.GetGraphic(20);
-            qrCodeBitMap.Save(memoryStream, ImageFormat.Png);
-            _qrcode = "data:image/png;base64," + Convert.ToBase64String(memoryStream.ToArray());
+        try
+        {
+            _qrcodeSource = await _mobilePayWebService.GenerateQrCode(qrCodeWidth, text);
         }
         catch (Exception)
         {

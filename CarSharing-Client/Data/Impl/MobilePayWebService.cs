@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -35,7 +36,14 @@ namespace CarSharing_Client.Data.Impl
             
             return await responseMessage.Content.ReadAsStringAsync();
         }
-
+        
+        public async Task<string> GenerateQrCode(int qrcodeWidth, string text)
+        {
+            WebClient webClient = new();
+            byte[] imageBytes = await webClient.DownloadDataTaskAsync($"https://chart.apis.google.com/chart?cht=qr&chs={qrcodeWidth}x{qrcodeWidth}&chl={text}");
+           
+            return Convert.ToBase64String(imageBytes);
+        }
         public async Task<bool> ValidatePayment(string paymentId)
         {
             HttpResponseMessage responseMessage =
