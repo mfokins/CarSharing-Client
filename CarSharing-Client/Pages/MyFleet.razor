@@ -151,7 +151,8 @@
             cacheVehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromSeconds(60 * 10));
+            //todo change to 10 min
+                .SetAbsoluteExpiration(TimeSpan.FromSeconds(60 * 1));
 
             _memoryCache.Set(cacheKey, cacheVehicles, cacheEntryOptions);
         }

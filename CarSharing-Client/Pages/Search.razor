@@ -19,18 +19,25 @@
                     <InputText class="form-control" @bind-Value="_params.Location"/>
                 </p>
             </div>
-            <div class="col-2 p-1 ml-3">
+            <div class="col-3 p-1 ml-3">
                 <p>
                     Date From:
-                    <InputDate class="form-control" @bind-Value="_params.DateFrom"/>
+                    <input class="form-control" type="datetime-local"
+                           @bind="_params.DateFrom"
+                           @bind:format="yyyy-MM-ddTHH:mm" step="0">
                 </p>
             </div>
-            <div class="col-2 p-1 ml-1">
+
+
+            <div class="col-3 p-1 ml-1">
                 <p>
                     Date To:
-                    <InputDate class="form-control" @bind-Value="_params.DateTo"/>
+                    <input class="form-control" type="datetime-local"
+                           @bind="_params.DateTo"
+                           @bind:format="yyyy-MM-ddTHH:mm" step="0">
                 </p>
             </div>
+
             <div class="col-2 ml-2 mt-4">
                 <p class="actions">
                     <button class="btn btn-outline-dark " type="submit">Search</button>
@@ -169,7 +176,7 @@
 
     private readonly SearchParams _params = new()
     {
-        DateFrom = DateTime.UtcNow
+        DateFrom = DateTime.Now
     };
 
     private readonly FilterParams _filterParams = new();

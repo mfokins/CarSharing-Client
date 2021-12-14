@@ -77,7 +77,6 @@ namespace CarSharing_Client.Data.Impl
             if (!responseMessage.IsSuccessStatusCode)
             {
                 var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
-                Console.WriteLine(responseMessage);
                 throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
             }
             

@@ -210,7 +210,7 @@
     {
         _errorMessage = "";
         _paymentId = "";
-        _addButtonText = "Lease vehicle";
+        _addButtonText = "Rent vehicle";
         GetDataFromUrl();
 
         _listing = await _listingService.GetListingById(ListingId);
@@ -233,8 +233,6 @@
         {
             _errorMessage = e.Message;
         }
-
-        await GenerateQrCode();
     }
 
     private void GetDataFromUrl()
@@ -259,6 +257,9 @@
 
     private async Task AddLease()
     {
+        var task = GenerateQrCode();
+        task.Wait();
+        
         try
         {
             _addButtonText = "Verifying payment";
@@ -272,7 +273,7 @@
                 return;
             }
 
-            _addButtonText = "Lease vehicle";
+            _addButtonText = "Rent vehicle";
             _errorMessage = "Payment failed";
         }
         catch (Exception e)

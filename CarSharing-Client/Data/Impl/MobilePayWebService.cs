@@ -19,17 +19,17 @@ namespace CarSharing_Client.Data.Impl
 
         public async Task<string> CreateNewPayment(decimal amount)
         {
-            NumberFormatInfo nfi = new NumberFormatInfo();
-            nfi.NumberDecimalSeparator = ".";
-            string x = amount.ToString(nfi);
-            
+            NumberFormatInfo format = new()
+            {
+                NumberDecimalSeparator = "."
+            };
+
             HttpResponseMessage responseMessage =
-                await _client.GetAsync(Uri + $"/mobilepay?amount={x}");
+                await _client.GetAsync(Uri + $"/mobilepay?amount={amount.ToString(format)}");
             
             if (!responseMessage.IsSuccessStatusCode)
             {
                 var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
-                Console.WriteLine(responseMessage);
                 throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
             }
             
@@ -45,7 +45,6 @@ namespace CarSharing_Client.Data.Impl
             if (!responseMessage.IsSuccessStatusCode)
             {
                 var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
-                Console.WriteLine(responseMessage);
                 throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
             }
             
