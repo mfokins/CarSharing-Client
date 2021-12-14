@@ -9,7 +9,6 @@ namespace CarSharing_Client.Data.Impl
 {
     public class UserService : IUserService
     {
-        //private const string Uri = "http://10.154.212.101:8080";
         private const string Uri = "http://localhost:8080";
         private readonly HttpClient _client;
 
@@ -55,6 +54,29 @@ namespace CarSharing_Client.Data.Impl
             });
 
             return result;
+        }
+
+        public async Task RegisterCustomer(Account account)
+        {
+            string accountAsJson = JsonSerializer.Serialize(account, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            StringContent accountAsStringContent = new StringContent(
+                accountAsJson,
+                Encoding.UTF8,
+                "application/json"
+            );
+
+            var responseMessage = await _client.PostAsync($"{Uri}/accounts", accountAsStringContent);
+
+            
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                var jsonObj = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+                throw new Exception(jsonObj.RootElement.GetProperty("message").GetString());
+            }
         }
     }
 }

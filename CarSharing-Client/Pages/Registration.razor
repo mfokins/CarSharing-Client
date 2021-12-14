@@ -1,0 +1,106 @@
+@page "/registration"
+@using CarSharing_Client.Models
+@using System.Text.RegularExpressions
+@using CarSharing_Client.Data
+
+@inject IUserService _userService;
+@inject NavigationManager _navigationManager; 
+
+<h3>Registration</h3>
+<hr/>
+
+<EditForm Model="@_registrationInput" OnValidSubmit="Register">
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label>Username</label>
+            <InputText type="text" class="form-control" @bind-Value="_registrationInput.Username"> </InputText>
+        </div>
+        <div class="form-group col-md-5">
+            <label>Password</label>
+            <InputText type="password" class="form-control" @bind-Value="_registrationInput.Password"> </InputText>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label>Cpr</label>
+            <InputText type="text" class="form-control"  @bind-Value="_registrationInput.Cpr"> </InputText>
+        </div>
+        <div class="form-group col-md-5">
+            <label>Phone No</label>
+            <InputText type="text" class="form-control" @bind-Value="_registrationInput.PhoneNo"> </InputText>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label>Firstname</label>
+            <InputText type="text" class="form-control"  @bind-Value="_registrationInput.FirstName"> </InputText>
+        </div>
+        <div class="form-group col-md-5">
+            <label>Lastname</label>
+            <InputText type="text" class="form-control" @bind-Value="_registrationInput.LastName"> </InputText>
+        </div>
+    </div>
+    
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    
+    <div class="col-4 ml-2 mt-4">
+        <p class="actions">
+            <button class="btn btn-outline-dark " type="submit">Register</button>
+            <button class="btn btn-danger" type="button" @onclick="Cancel">Cancel</button>
+        </p>
+    </div>
+    <p><em> <a href="/login">Have you already registered an account?</a></em></p>
+</EditForm>
+
+@if (_errorMessage != "")
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+
+@code {
+    private string _errorMessage = "";
+
+    private readonly RegistrationInput _registrationInput = new();
+
+    private async Task Register()
+    {
+        try
+        {
+            _errorMessage = "";
+            if (!Regex.IsMatch(_registrationInput.Cpr, "^\\d{10}$"))
+            {
+                throw new Exception("Invalid cpr format. Please use the format 'ddMMyyxxxx'");
+            }
+
+            Account account = new Account
+            {
+                Username = _registrationInput.Username,
+                Password = _registrationInput.Password,
+                Customer = new Customer
+                {
+                    Cpr = _registrationInput.Cpr,
+                    FirstName = _registrationInput.FirstName,
+                    LastName = _registrationInput.LastName,
+                    PhoneNo = _registrationInput.PhoneNo,
+                    AccessLevel = 0
+                }
+            };
+            await _userService.RegisterCustomer(account);
+            _navigationManager.NavigateTo("/login");
+        }
+        catch (Exception e)
+        {
+            _errorMessage = e.Message;
+        }
+    }
+    
+    private void Cancel()
+    {
+        _navigationManager.NavigateTo("/login");
+    }
+}
