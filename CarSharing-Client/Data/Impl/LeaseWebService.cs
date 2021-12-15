@@ -14,7 +14,7 @@ namespace CarSharing_Client.Data.Impl
     public class LeaseWebService : ILeaseService
     {
         private readonly HttpClient _client;
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "https://localhost:8554";
        
 
         public LeaseWebService()

@@ -9,7 +9,7 @@ namespace CarSharing_Client.Data.Impl
 {
     public class UserService : IUserService
     {
-        private const string Uri = "http://localhost:8080";
+        private const string Uri = "https://localhost:8554";
         private readonly HttpClient _client;
 
         public UserService()
