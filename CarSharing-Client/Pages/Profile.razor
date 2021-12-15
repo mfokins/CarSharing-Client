@@ -1,0 +1,45 @@
+@page "/profile"
+
+@using CarSharing_Client.Models
+@using CarSharing_Client.Authentication
+
+@inject NavigationManager _navigationManager; 
+@inject AuthenticationStateProvider _authenticationStateProvider
+
+<h3>Your Profile</h3>
+<hr/>
+
+<div class="form-row">
+    <div class="form-group col-md-5">
+        <p class="form-control"><strong>Cpr:</strong> @_customer.Cpr </p>
+    </div>
+    <div class="form-group col-md-5">
+       <p class="form-control"> <strong>Phone:</strong> @_customer.PhoneNo </p>
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="form-group col-md-5">
+       <p class="form-control"> <strong>Firstname:</strong> @_customer.FirstName </p>
+    </div>
+    <div class="form-group col-md-5">
+        <p class="form-control"> <strong>Lastname:</strong> @_customer.LastName </p>
+    </div>
+</div>
+
+@if (_errorMessage != "")
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+
+@code {
+    private string _errorMessage = "";
+    private Customer _customer;
+
+    protected override void OnInitialized()
+    {
+        _customer = ((CustomAuthenticationStateProvider) _authenticationStateProvider).CachedCustomer;
+    }
+}
