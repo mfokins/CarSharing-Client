@@ -18,9 +18,6 @@
 
 <button class="btn btn-dark" @onclick="@( () => _navigationManager.NavigateTo($"/vehicle-register") )">Register new vehicle</button>
 
-@* Todo By Ion - remove the button (can not test if admin approves because of the cache) *@
-<button class="btn btn-dark" @onclick="@(async () => {_vehicles = await _vehicleService.GetVehiclesByOwnerCprAsync(_customer.Cpr);})">Refresh vehicles</button>
-
 <hr/>
 <div class="row p-1">
     @if (_vehicles != null)
